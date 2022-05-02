@@ -1,0 +1,54 @@
+{
+    "AA Vue-Component boilerplate": {
+        "prefix": "aac",
+        "description": "Boilerplate for AA Components",
+        "body": [
+            "<template>",
+            "\t<div class=\"aa-$1\"></div>",
+            "</template>",
+            "\n<script lang=\"ts\">",
+            "import { Vue, Component } from 'vue-property-decorator';",
+            "\n@Component",
+            "export default class AA$1 extends Vue {}",
+            "</script>",
+            "\n<style lang=\"scss\" scoped>",
+            ".aa-$1 {",
+            "\t//",
+            "}",
+            "</style>",
+        ]
+    },
+    "AA View-Component boilerplate": {
+        "prefix": "aav",
+        "description": "Boilerplate for AA Views",
+        "body": [
+            "<template>",
+            "\t<div class=\"view-$1\"></div>",
+            "</template>",
+            "\n<script lang=\"ts\">",
+            "import { Vue, Component } from 'vue-property-decorator';",
+            "\n@Component",
+            "export default class $1 extends Vue {}",
+            "</script>",
+            "\n<style lang=\"scss\" scoped>",
+            ".view-$1 {",
+            "\t//",
+            "}",
+            "</style>",
+        ]
+    },
+    "AA Icon boilerplate": {
+        "prefix": "aai",
+        "description": "Boilerplate for AA Icons",
+        "body": [
+            "<template>",
+            "  <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">",
+            "    <path",
+            "      fill=\"currentColor\"",
+            "      $1",
+            "    />",
+            "  </svg>",
+            "</template>"
+        ]
+    }
+}
