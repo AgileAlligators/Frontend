@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h1>Table {{ currentSort }}</h1>
+    <FilterDialog v-if="filterDialog" @clicked="filterDialog = false"/>
+    <h1>Current Sort: {{ currentSort }} : {{ currentSortDir }}</h1>
+    <AAIconButton @click="filterDialog = true"> <aiFilter /> </AAIconButton>
     <table>
       <thead>
         <tr>
@@ -35,17 +37,24 @@
 <script lang="ts">
 import aiChevronLeftVue from '@/icons/etc/aiChevronLeft.vue';
 import aiChevronRightVue from '@/icons/etc/aiChevronRight.vue';
+import aiFilter from '@/icons/etc/aiFilter.vue';
+import FilterDialog from '@/components/FilterDialog.vue';
+import AAIconButton from '@/components/AAIconButton.vue';
 import Vue from 'vue';
 export default Vue.extend({
   components: {
     aiChevronLeftVue,
     aiChevronRightVue,
+    aiFilter,
+    FilterDialog,
+    AAIconButton,
   },
   data() {
     return {
       table: [] as { id: number; type: string; customer: string }[],
       currentSort: 'id' as string,
       currentSortDir: 'asc' as string,
+      filterDialog: false as boolean,
     };
   },
   computed: {
@@ -112,6 +121,7 @@ export default Vue.extend({
       }
       this.currentSort = s;
     },
+
   },
 });
 </script>
