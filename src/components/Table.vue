@@ -1,6 +1,6 @@
 <template>
   <div>
-    <FilterDialog v-if="filterDialog" @clicked="filterDialog = false"/>
+    <FilterDialog v-if="filterDialog" @clicked="filterDialog = false" />
     <h1>Current Sort: {{ currentSort }} : {{ currentSortDir }}</h1>
     <AAIconButton @click="filterDialog = true"> <aiFilter /> </AAIconButton>
     <table>
@@ -41,6 +41,7 @@ import aiFilter from '@/icons/etc/aiFilter.vue';
 import FilterDialog from '@/components/FilterDialog.vue';
 import AAIconButton from '@/components/AAIconButton.vue';
 import Vue from 'vue';
+import filterStore from '@/store/filterStore';
 export default Vue.extend({
   components: {
     aiChevronLeftVue,
@@ -80,6 +81,16 @@ export default Vue.extend({
           }
         }
       );
+    },
+    filteredTable(): string[] {
+      // const filter = filterStore.getters.filterSettings;
+      // let filteredTable = [] as string[];
+      // this.table.forEach((el) => {
+        
+      // });
+      // TODO: expand filter with more variables
+      // 
+      return [''];
     },
   },
   watch: {
@@ -121,7 +132,6 @@ export default Vue.extend({
       }
       this.currentSort = s;
     },
-
   },
 });
 </script>
