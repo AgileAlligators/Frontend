@@ -5,9 +5,13 @@ Vue.use(Vuex);
 
 const states = {
   filter: {
-    Porsche: false as boolean,
-    Bugatti: false as boolean,
-    Citroen: false as boolean,
+    Porsche: false,
+    Bugatti: false,
+    Citroen: false,
+    Ferrari: false,
+    BMW: false,
+    Haube: false,
+    Motor: false,
   },
 };
 

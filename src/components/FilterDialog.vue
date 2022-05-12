@@ -39,7 +39,6 @@ export default class FilterDialog extends Vue {
   }
   saveFilterOptions(): void {
     filterStore.commit('updateFilter', this.$data.filterOptions);
-    console.error(JSON.stringify(filterStore.state.filter, null, 2));
     this.$emit('clicked');
   }
 }
@@ -55,7 +54,7 @@ export default class FilterDialog extends Vue {
   border: 1px solid black;
 }
 .selected-button {
-  background: green;
+  background: rgba(var(--vm-primary), 1);
   color: white;
 }
 </style>
