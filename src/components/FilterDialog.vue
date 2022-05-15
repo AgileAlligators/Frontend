@@ -1,14 +1,31 @@
 <template>
   <vm-dialog :value="filterDialog" title="Filter">
-    <template v-for="(value, option) in filterSettings">
-      <AAIconButton
-        :class="{ 'selected-button': value }"
-        @click="updateFilter(option)"
-        :key="option"
-      >
-        {{ option }}
-      </AAIconButton>
-    </template>
+    <table>
+      <thead>
+        <tr>
+          <template v-for="(value, option) in filterSettings">
+            <th :key="value.id">{{ option }}</th>
+          </template>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="2">
+            <ul v-for="(value, key) in filterSettings" :key="value.ID">
+              <li v-for="(item, val) in value" :key="val">
+                <AAIconButton
+                  :class="{ 'selected-button': item }"
+                  @click="updateFilter(key, val)"
+                  :key="val"
+                >
+                  {{ val }}
+                </AAIconButton>
+              </li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <AAIconButton @click="closeFilterDialog()">Fertig</AAIconButton>
   </vm-dialog>
 </template>
@@ -33,8 +50,9 @@ export default class FilterDialog extends Vue {
     this.$data.filterOptions = this.filterSettings;
     this.$emit('clicked');
   }
-  updateFilter(option: string): void {
-    this.$data.filterOptions[option] = !this.$data.filterOptions[option];
+  updateFilter(customer: string, key: string): void {
+    this.$data.filterOptions[customer][key] =
+      !this.$data.filterOptions[customer][key];
   }
 }
 </script>
@@ -43,5 +61,9 @@ export default class FilterDialog extends Vue {
 .selected-button {
   background: rgba(var(--vm-primary), 1);
   color: white;
+}
+ul {
+  display: table-cell;
+  list-style: none;
 }
 </style>

@@ -133,8 +133,8 @@ export default Vue.extend({
     },
     filter(item: { id: number; type: string; customer: string }): boolean {
       if (
-        this.currentFilter[item.type] === true ||
-        this.currentFilter[item.customer] === true
+        this.currentFilter.type[item.type] === true ||
+        this.currentFilter.customer[item.customer] === true
       ) {
         return false;
       } else {
