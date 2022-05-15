@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <template v-for="value in ['id', 'type', 'customer']">
-            <th :key="value">
+            <th :key="value" class="table-header">
               <div class="header-container">
                 {{ value }}
                 <div class="arrow-container">
@@ -34,13 +34,15 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in table" :key="item.id">
-          <template v-if="filter(item)">
-            <td>{{ item.id }}</td>
-            <td>{{ item.type }}</td>
-            <td>{{ item.customer }}</td>
-          </template>
-        </tr>
+        <template v-for="item in table">
+          <tr colspan="3" v-if="filter(item)" :key="item.id">
+            <td class="list-entry">
+              <div>{{ item.id }}</div>
+              <div>{{ item.type }}</div>
+              <div>{{ item.customer }}</div>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -159,5 +161,19 @@ svg {
   height: 20px;
   width: 20px;
   transform: rotate(90deg) !important;
+}
+.list-entry {
+  border: 1px solid black;
+
+  div {
+    min-width: 150px;
+    padding-right: 1px;
+    padding-left: 1px;
+    float: left;
+  }
+}
+.table-header {
+  min-width: 150px;
+  float: left;
 }
 </style>
