@@ -1,13 +1,13 @@
 <template>
   <div class="aa-sidebar" :safari="$store.state.safari">
     <router-link :to="{ name: 'home' }" class="logo">
-      <ai-alligator />
-      <div>Agile</div>
-      <span>Alligators</span>
+      <div>Ligenium</div>
+      <span>Track+</span>
     </router-link>
 
-    <div class="items">
-      <AASidebarItem route="home" title="Home" icon="home" />
+    <div class="items" v-if="$store.getters.user">
+      <AASidebarItem route="account" title="Account" icon="account" />
+      <AASidebarItem route="home" title="Übersicht" icon="home" />
       <AASidebarItem route="about" title="Über" icon="home" />
     </div>
   </div>
@@ -83,10 +83,6 @@ export default class AASidebar extends Vue {}
       font-weight: 500;
       border: 1px solid currentColor;
       color: rgba(var(--vm-color-secondary), 1);
-    }
-
-    svg {
-      height: 1.5em;
     }
   }
 

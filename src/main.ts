@@ -1,10 +1,13 @@
 import Vue from 'vue';
+import vTitle from 'vuejs-title';
 import Vuement from 'vuement';
 import App from './App.vue';
 import { AlligatorIcons } from './icons';
 import './registerServiceWorker';
 import router from './router';
 import store from './store';
+import { Authenticator } from './utils/authenticator';
+import { PermsDirective } from './utils/perms.directive';
 
 Vue.config.productionTip = false;
 
@@ -31,6 +34,15 @@ Vue.use(Vuement, {
 });
 
 Vue.use(AlligatorIcons);
+Vue.use(vTitle, {
+  cssClass: 'aa-tooltip',
+  bgColor: 'rgba(var(--vm-background), 1)',
+  round: '7.5px',
+  textColor: 'rgba(var(--vm-color), 1)',
+});
+
+Vue.directive('pex', PermsDirective);
+Authenticator.test();
 
 new Vue({
   router,

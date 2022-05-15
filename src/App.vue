@@ -3,6 +3,7 @@
     <AASidebar />
     <AAHeader />
 
+    <vm-notification />
     <AARouter />
 
     <AAUpdateAvailable v-model="updateAvailable" @refresh="refresh" />
@@ -198,5 +199,23 @@ a.icon-link {
 form[dialog] {
   display: flex;
   flex-direction: column;
+}
+
+.aa-tooltip {
+  border: 1px solid rgba(var(--vm-border), 1);
+  font-weight: 500;
+
+  &[position='bottom'] .aa-tooltip-arrow {
+    border-bottom-color: rgba(var(--vm-border), 1) !important;
+  }
+  &[position='top'] .aa-tooltip-arrow {
+    border-top-color: rgba(var(--vm-border), 1) !important;
+  }
+  &[position='left'] .aa-tooltip-arrow {
+    border-left-color: rgba(var(--vm-border), 1) !important;
+  }
+  &[position='right'] .aa-tooltip-arrow {
+    border-right-color: rgba(var(--vm-border), 1) !important;
+  }
 }
 </style>

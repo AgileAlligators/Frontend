@@ -1,11 +1,8 @@
 <template>
-  <vm-dialog
-    class="aa-update-available"
-    :value="innerValue"
-    @close="close"
-    title="Update verfügbar"
-  >
+  <vm-dialog class="aa-update-available" :value="innerValue" @close="close">
     <vm-menu-button icon="cross" :filled="true" slot="button" @click="close" />
+    <AADialogHeader title="Update verfügbar" />
+
     <div class="about">
       Update Agile Alligators, um die neuesten Funktionen zu nutzen.
     </div>
@@ -19,8 +16,9 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import AADialogHeader from './AADialogHeader.vue';
 
-@Component
+@Component({ components: { AADialogHeader } })
 export default class AAUpdateAvailable extends Vue {
   @Prop() value!: boolean;
 

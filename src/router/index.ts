@@ -1,3 +1,4 @@
+import store from '@/store';
 import { MetaInjector } from '@/utils/MetaInjector';
 import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
@@ -19,7 +20,23 @@ const router = new VueRouter({
       name: 'home',
       component: () => import('@/views/Home.vue'),
       meta: {
-        PAGE_TITLE: 'Home',
+        PAGE_TITLE: 'Übersicht',
+      },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/Login.vue'),
+      meta: {
+        PAGE_TITLE: 'Login',
+      },
+    },
+    {
+      path: '/account',
+      name: 'account',
+      component: () => import('@/views/Account.vue'),
+      meta: {
+        PAGE_TITLE: 'Account',
       },
     },
     {
@@ -40,6 +57,19 @@ router.afterEach((to: Route) => {
 
     MetaInjector.setPageTitle(PAGE_TITLE);
     MetaInjector.setPageDescription(PAGE_DESCRIPTION);
+  }
+});
+
+router.beforeEach((to, _, next) => {
+  try {
+    if (to.name !== 'login' && !store.getters.user) {
+      store.commit('savedRoute', to);
+      next({ name: 'login' });
+    } else if (to.name === 'login' && store.getters.user) {
+      next(false);
+    } else next();
+  } catch (_) {
+    // noop
   }
 });
 

@@ -7,7 +7,11 @@
     >
       <vm-flow v-if="$store.getters.desktop">
         <AAIconButton
+          :key="$store.getters.dark"
           :icon="$store.getters.dark ? 'sun' : 'moon'"
+          v-title="
+            'Darkmode ' + ($store.getters.dark ? 'de' : '') + 'aktivieren'
+          "
           @click="$store.commit('toggleDark')"
         />
       </vm-flow>
@@ -15,14 +19,15 @@
 
     <template v-if="mobile">
       <vm-flow slot="title">
-        <router-link class="home" :to="{ name: 'home' }">
-          <ai-alligator />
-        </router-link>
+        <router-link class="home" :to="{ name: 'home' }"> Track+ </router-link>
         <div class="title">{{ title }}</div>
       </vm-flow>
 
-      <vm-navbar-item routeName="home" title="Home" />
-      <vm-navbar-item routeName="about" title="Über" />
+      <template v-if="$store.getters.user">
+        <vm-navbar-item routeName="account" title="Account" />
+        <vm-navbar-item routeName="home" title="Übersicht" />
+        <vm-navbar-item routeName="about" title="Über" />
+      </template>
     </template>
   </vm-navbar>
 </template>
@@ -58,14 +63,12 @@ export default class AAHeader extends Vue {
 <style lang="scss" scoped>
 .aa-header {
   .home {
-    display: grid;
-    place-content: center;
-    width: 50px;
-    height: 50px;
-    color: inherit;
-    svg {
-      width: 30px;
-    }
+    font-size: 0.85em;
+    padding: 2.5px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+    border: 1px solid currentColor;
+    color: rgba(var(--vm-color-secondary), 1);
   }
 
   .title {
