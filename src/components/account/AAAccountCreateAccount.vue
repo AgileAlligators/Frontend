@@ -37,9 +37,9 @@ export default class AAAccountCreateAccount extends Vue {
 
   public sending = false;
   public dto = {
-    username: 'Porsche2',
-    password: '123456',
-    passwordR: '123456',
+    username: '',
+    password: '',
+    passwordR: '',
   };
 
   public get disabled(): boolean {
