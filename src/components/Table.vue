@@ -1,8 +1,5 @@
 <template>
   <div>
-    <FilterDialog v-if="filterDialog" @clicked="filterTable" />
-    <h1>Current Sort: {{ currentSort }} : {{ currentSortDir }}</h1>
-    <AAIconButton @click="filterDialog = true"> <aiFilter /> </AAIconButton>
     <table>
       <thead>
         <tr>
@@ -52,18 +49,12 @@
 <script lang="ts">
 import aiChevronLeftVue from '@/icons/etc/aiChevronLeft.vue';
 import aiChevronRightVue from '@/icons/etc/aiChevronRight.vue';
-import aiFilter from '@/icons/etc/aiFilter.vue';
-import FilterDialog from '@/components/FilterDialog.vue';
-import AAIconButton from '@/components/AAIconButton.vue';
 import Vue from 'vue';
 import filterStore from '@/store/filterStore';
 export default Vue.extend({
   components: {
     aiChevronLeftVue,
     aiChevronRightVue,
-    aiFilter,
-    FilterDialog,
-    AAIconButton,
   },
   data() {
     return {
@@ -138,9 +129,6 @@ export default Vue.extend({
       this.currentSort = sort;
       this.currentSortDir = direction;
     },
-    filterTable(): void {
-      this.filterDialog = false;
-    },
     filter(item: { id: number; type: string; customer: string }): boolean {
       if (
         this.currentFilter[item.type] === true ||
@@ -160,16 +148,16 @@ export default Vue.extend({
   display: flex;
   height: 50px;
 }
-svg {
-  height: 20px;
-  width: 20px;
-  transform: rotate(90deg) !important;
-}
 .arrow-container {
   width: 20px;
   padding-left: 10px;
 }
 .selected-sort {
   color: rgba(var(--vm-primary), 1);
+}
+svg {
+  height: 20px;
+  width: 20px;
+  transform: rotate(90deg) !important;
 }
 </style>

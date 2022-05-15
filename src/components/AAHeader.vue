@@ -6,6 +6,15 @@
       :class="{ options: mobile }"
     >
       <vm-flow v-if="$store.getters.desktop">
+        <FilterDialog
+          v-if="filterDialog"
+          @clicked="filterDialog = false"
+          :filterDialog="filterDialog"
+        />
+        <AAIconButton @click="toggleFilter">
+          <p class="icon-title">Filter</p>
+          <aiFilter />
+        </AAIconButton>
         <AAIconButton
           :key="$store.getters.dark"
           :icon="$store.getters.dark ? 'sun' : 'moon'"
@@ -35,15 +44,23 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import AAIconButton from '@/components/AAIconButton.vue';
+import aiFilter from '@/icons/etc/aiFilter.vue';
+import FilterDialog from '@/components/FilterDialog.vue';
 
-@Component({ components: { AAIconButton } })
+@Component({ components: { AAIconButton, aiFilter, FilterDialog } })
 export default class AAHeader extends Vue {
+  filterDialog = false;
+
   get mobile(): boolean {
     return !this.$store.getters.desktop;
   }
 
   get title(): string {
     return this.$store.getters.title.split(' |')[0];
+  }
+
+  toggleFilter(): void {
+    this.filterDialog = !this.filterDialog;
   }
 }
 </script>
@@ -109,6 +126,9 @@ export default class AAHeader extends Vue {
     display: flex;
     flex: 1 1 0px;
     background: rgba(var(--vm-paragraph), 1);
+  }
+  .icon-title {
+    padding: 0px 10px 0px 10px;
   }
 }
 </style>

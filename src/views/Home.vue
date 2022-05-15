@@ -1,5 +1,5 @@
 <template>
-  <AAView class="view-home">Home</AAView>
+  <AAView class="view-home" />
 </template>
 
 <script lang="ts">
@@ -14,8 +14,4 @@ import { Vue, Component } from 'vue-property-decorator';
 export default class Home extends Vue {}
 </script>
 
-<style lang="scss" scoped>
-.view-home {
-  //
-}
-</style>
+<style lang="scss" scoped></style>
