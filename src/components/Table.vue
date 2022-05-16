@@ -3,7 +3,7 @@
     <table>
       <thead>
         <tr>
-          <template v-for="value in ['id', 'type', 'customer']">
+          <template v-for="value in ['id', 'type', 'customer', 'timestamp']">
             <th :key="value" class="table-header">
               <div class="header-container">
                 {{ value }}
@@ -40,6 +40,7 @@
               <div>{{ item.id }}</div>
               <div>{{ item.type }}</div>
               <div>{{ item.customer }}</div>
+              <div>{{ item.timestamp }}</div>
             </td>
           </tr>
         </template>
@@ -60,19 +61,29 @@ export default Vue.extend({
   },
   data() {
     return {
-      table: [] as { id: number; type: string; customer: string }[],
+      table: [] as {
+        id: number;
+        type: string;
+        customer: string;
+        timestamp: string;
+      }[],
       currentSort: 'id' as string,
       currentSortDir: 'asc' as string,
       filterDialog: false as boolean,
     };
   },
   computed: {
-    sortedTable(): { id: number; type: string; customer: string }[] {
+    sortedTable(): {
+      id: number;
+      type: string;
+      customer: string;
+      timestamp: string;
+    }[] {
       const sortedTable = this.table;
       return sortedTable.sort(
         (
-          a: { id: number; type: string; customer: string },
-          b: { id: number; type: string; customer: string }
+          a: { id: number; type: string; customer: string; timestamp: string },
+          b: { id: number; type: string; customer: string; timestamp: string }
         ) => {
           let modifier = 1;
           if (this.currentSortDir === 'desc') {
@@ -80,9 +91,16 @@ export default Vue.extend({
           }
           type ObjectKey = keyof typeof a;
           const currentSort = this.currentSort as ObjectKey;
-          if (a[currentSort] < b[currentSort]) {
+
+          let entryA: string | number | Date = a[currentSort];
+          let entryB: string | number | Date = b[currentSort];
+          if (this.currentSort === 'timestamp') {
+            entryA = new Date(entryA);
+            entryB = new Date(entryB);
+          }
+          if (entryA < entryB) {
             return -1 * modifier;
-          } else if (a[currentSort] > b[currentSort]) {
+          } else if (entryA > entryB) {
             return 1 * modifier;
           } else {
             return 0;
@@ -117,10 +135,19 @@ export default Vue.extend({
         'BMW',
       ];
       for (let n = 0; n < tableRows; n++) {
+        const date = new Date(
+          new Date(2020, 0, 1).getTime() +
+            Math.random() *
+              (new Date(2022, 5, 16).getTime() - new Date(2020, 0, 1).getTime())
+        );
+        const currentTimeStamp = `${date.getFullYear()}-${
+          date.getMonth() + 1
+        }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
         const temp = {
           id: idNumber,
           type: types[n % 2],
           customer: customers[Math.floor(Math.random() * customers.length)],
+          timestamp: currentTimeStamp,
         };
         testData.push(temp);
         idNumber++;
