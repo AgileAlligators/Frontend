@@ -37,10 +37,12 @@
         <template v-for="item in table">
           <tr colspan="3" v-if="filter(item)" :key="item.id">
             <td class="list-entry">
-              <div>{{ item.id }}</div>
-              <div>{{ item.type }}</div>
-              <div>{{ item.customer }}</div>
-              <div>{{ item.timestamp }}</div>
+              <AAIconButton @click="selectEntry">
+                <div>{{ item.id }}</div>
+                <div>{{ item.type }}</div>
+                <div>{{ item.customer }}</div>
+                <div>{{ item.timestamp }}</div>
+              </AAIconButton>
             </td>
           </tr>
         </template>
@@ -54,10 +56,12 @@ import aiChevronLeftVue from '@/icons/etc/aiChevronLeft.vue';
 import aiChevronRightVue from '@/icons/etc/aiChevronRight.vue';
 import Vue from 'vue';
 import filterStore from '@/store/filterStore';
+import AAIconButton from '@/components/AAIconButton.vue';
 export default Vue.extend({
   components: {
     aiChevronLeftVue,
     aiChevronRightVue,
+    AAIconButton,
   },
   data() {
     return {
@@ -168,6 +172,9 @@ export default Vue.extend({
         return true;
       }
     },
+    selectEntry(): void {
+      this.$router.push({ name: 'about' });
+    },
   },
 });
 </script>
@@ -196,7 +203,7 @@ svg {
     min-width: 150px;
     padding-right: 1px;
     padding-left: 1px;
-    float: left;
+    text-align: start;
   }
 }
 .table-header {

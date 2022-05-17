@@ -8,6 +8,7 @@ import router from './router';
 import store from './store';
 import { Authenticator } from './utils/authenticator';
 import { PermsDirective } from './utils/perms.directive';
+import VueApexCharts from 'vue-apexcharts';
 
 Vue.config.productionTip = false;
 
@@ -43,6 +44,9 @@ Vue.use(vTitle, {
 
 Vue.directive('pex', PermsDirective);
 Authenticator.test();
+
+Vue.use(VueApexCharts);
+Vue.component('apexchart', VueApexCharts);
 
 new Vue({
   router,

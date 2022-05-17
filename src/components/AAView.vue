@@ -6,7 +6,6 @@
     </div>
     <div>
       <div class="body" :header="!!$slots.header" :footer="!!$slots.footer">
-        <Table />
         <slot />
       </div>
     </div>
@@ -18,13 +17,8 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import Table from '@/components/Table.vue';
 
-@Component({
-  components: {
-    Table,
-  },
-})
+@Component
 export default class AAView extends Vue {}
 </script>
 
