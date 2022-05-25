@@ -3,7 +3,7 @@
     <table>
       <thead>
         <tr>
-          <template v-for="value in ['id', 'type', 'customer', 'timestamp']">
+          <template v-for="value in ['id', 'type', 'customer', 'order']">
             <th :key="value" class="table-header">
               <div class="header-container">
                 {{ value }}
@@ -37,11 +37,11 @@
         <template v-for="item in table">
           <tr colspan="3" v-if="filter(item)" :key="item.id">
             <td class="list-entry">
-              <AAIconButton @click="selectEntry">
+              <AAIconButton @click="selectEntry(item)">
                 <div>{{ item.id }}</div>
                 <div>{{ item.type }}</div>
                 <div>{{ item.customer }}</div>
-                <div>{{ item.timestamp }}</div>
+                <div>{{ item.order }}</div>
               </AAIconButton>
             </td>
           </tr>
@@ -57,6 +57,8 @@ import aiChevronRightVue from '@/icons/etc/aiChevronRight.vue';
 import Vue from 'vue';
 import filterStore from '@/store/filterStore';
 import AAIconButton from '@/components/AAIconButton.vue';
+import { backend } from '@/utils/backend';
+import { Constants } from '@/utils/constants';
 export default Vue.extend({
   components: {
     aiChevronLeftVue,
@@ -69,7 +71,7 @@ export default Vue.extend({
         id: number;
         type: string;
         customer: string;
-        timestamp: string;
+        order: string;
       }[],
       currentSort: 'id' as string,
       currentSortDir: 'asc' as string,
@@ -78,16 +80,16 @@ export default Vue.extend({
   },
   computed: {
     sortedTable(): {
-      id: number;
-      type: string;
       customer: string;
-      timestamp: string;
+      id: number;
+      order: string;
+      type: string;
     }[] {
       const sortedTable = this.table;
       return sortedTable.sort(
         (
-          a: { id: number; type: string; customer: string; timestamp: string },
-          b: { id: number; type: string; customer: string; timestamp: string }
+          a: { customer: string; id: number; order: string; type: string },
+          b: { customer: string; id: number; order: string; type: string }
         ) => {
           let modifier = 1;
           if (this.currentSortDir === 'desc') {
@@ -96,12 +98,9 @@ export default Vue.extend({
           type ObjectKey = keyof typeof a;
           const currentSort = this.currentSort as ObjectKey;
 
-          let entryA: string | number | Date = a[currentSort];
-          let entryB: string | number | Date = b[currentSort];
-          if (this.currentSort === 'timestamp') {
-            entryA = new Date(entryA);
-            entryB = new Date(entryB);
-          }
+          let entryA: string | number = a[currentSort];
+          let entryB: string | number = b[currentSort];
+
           if (entryA < entryB) {
             return -1 * modifier;
           } else if (entryA > entryB) {
@@ -122,58 +121,47 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.initializeTableData();
+    backend
+      .post('carrier/search', {
+        Authorization: 'Bearer ' + Constants.ACCESS_TOKEN,
+        data: {
+          limit: 20,
+          skip: 0,
+        },
+      })
+      .then((response) => {
+        this.table = response.data.results;
+      });
   },
   methods: {
-    initializeTableData(): void {
-      // randomly generated data to fill table
-      const testData = [];
-      const tableRows = 100;
-      let idNumber = 0;
-      const types: string[] = ['Haube', 'Motor'];
-      const customers: string[] = [
-        'Porsche',
-        'Ferrari',
-        'Bugatti',
-        'Citroen',
-        'BMW',
-      ];
-      for (let n = 0; n < tableRows; n++) {
-        const date = new Date(
-          new Date(2020, 0, 1).getTime() +
-            Math.random() *
-              (new Date(2022, 5, 16).getTime() - new Date(2020, 0, 1).getTime())
-        );
-        const currentTimeStamp = `${date.getFullYear()}-${
-          date.getMonth() + 1
-        }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-        const temp = {
-          id: idNumber,
-          type: types[n % 2],
-          customer: customers[Math.floor(Math.random() * customers.length)],
-          timestamp: currentTimeStamp,
-        };
-        testData.push(temp);
-        idNumber++;
-      }
-      this.table = testData;
-    },
     sort(sort: string, direction: string): void {
       this.currentSort = sort;
       this.currentSortDir = direction;
     },
-    filter(item: { id: number; type: string; customer: string }): boolean {
+    filter(item: {
+      customer: string;
+      id: number;
+      order: string;
+      type: string;
+    }): boolean {
       if (
         this.currentFilter.type[item.type] === true ||
-        this.currentFilter.customer[item.customer] === true
+        this.currentFilter.customer[item.customer] === true ||
+        this.currentFilter.order[item.order] === true
       ) {
         return false;
       } else {
         return true;
       }
     },
-    selectEntry(): void {
+    selectEntry(item: {
+      customer: string;
+      id: number;
+      order: string;
+      type: string;
+    }): void {
       this.$router.push({ name: 'about' });
+      console.error(item);
     },
   },
 });
@@ -200,10 +188,12 @@ svg {
   border: 1px solid black;
 
   div {
-    min-width: 150px;
+    width: 150px;
     padding-right: 1px;
     padding-left: 1px;
     text-align: start;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 }
 .table-header {
