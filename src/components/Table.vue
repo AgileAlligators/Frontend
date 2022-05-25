@@ -68,10 +68,10 @@ export default Vue.extend({
   data() {
     return {
       table: [] as {
-        id: number;
-        type: string;
         customer: string;
+        id: number;
         order: string;
+        type: string;
       }[],
       currentSort: 'id' as string,
       currentSortDir: 'asc' as string,
@@ -161,7 +161,7 @@ export default Vue.extend({
       type: string;
     }): void {
       this.$router.push({ name: 'about' });
-      console.error(item);
+      filterStore.commit('selectCarrier', item);
     },
   },
 });

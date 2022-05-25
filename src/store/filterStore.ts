@@ -17,6 +17,7 @@ const states = {
       Order2: false
     }
   },
+  selectedCarrier: {}
 };
 
 export default new Vuex.Store({
@@ -25,10 +26,16 @@ export default new Vuex.Store({
     filterSettings: (state: typeof states) => {
       return state.filter;
     },
+    currentSelectedCarrier: (state: typeof states) => {
+      return state.selectedCarrier;
+    }
   },
   mutations: {
     updateFilter(state: typeof states, updatedFilter) {
       state.filter = updatedFilter;
     },
+    selectCarrier(state: typeof states, carrier) {
+      state.selectedCarrier = carrier;
+    }
   },
 });

@@ -16,8 +16,19 @@
       <vm-input v-model="endingDate" type="date" />
     </div>
     <AAIconButton @click="updateTimeFrame">Diagramm aktualisieren</AAIconButton>
-    <LineDiagram v-if="selected === 'Line Chart'" />
-    <BarChart v-else-if="selected === 'Bar Chart'" />
+    <LineDiagram
+      v-if="selected === 'Line Chart'"
+      :categories="carrierTimeStamps"
+      :data="carrierLoad"
+    />
+    <BarChart
+      v-else-if="selected === 'Bar Chart'"
+      :categories="carrierTimeStamps"
+      :data="carrierLoad"
+    />
+    <div v-if="Object.keys(selectedCarrier).length > 0">
+      Ausgewählter Ladungsträger: {{ selectedCarrier }}
+    </div>
   </AAView>
 </template>
 
@@ -28,6 +39,7 @@ import LineDiagram from '@/components/LineDiagram.vue';
 import BarChart from '@/components/BarChart.vue';
 import AAIconButton from '@/components/AAIconButton.vue';
 import { backend } from '@/utils/backend';
+import filterStore from '@/store/filterStore';
 
 @Component({ components: { AAView, LineDiagram, BarChart, AAIconButton } })
 export default class About extends Vue {
@@ -35,6 +47,19 @@ export default class About extends Vue {
   options = ['Line Chart', 'Bar Chart'];
   startingDate = '';
   endingDate = '';
+  carrierTimeStamps: number[] = [];
+  carrierLoad: number[] = [];
+
+  currentlySelectedCarrier = {};
+
+  get selectedCarrier(): {
+    customer: string;
+    id: number;
+    order: string;
+    type: string;
+  } {
+    return filterStore.getters.currentSelectedCarrier;
+  }
 
   created(): void {
     this.selected = this.options[0];
@@ -54,7 +79,11 @@ export default class About extends Vue {
       end: 1652632892123,
     };
     backend.post('diagram/line-diagram', request).then((response) => {
-      console.error(response);
+      response.data[0].dataPairs.forEach((element: number[]) => {
+        this.carrierTimeStamps.push(element[0]);
+        this.carrierLoad.push(element[1]);
+        console.warn('test');
+      });
     });
   }
 }

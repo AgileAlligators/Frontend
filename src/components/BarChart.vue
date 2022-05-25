@@ -10,24 +10,32 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component
 export default class BarChart extends Vue {
-  options = {
-    chart: {
-      id: 'bar-chart',
-    },
-    xaxis: {
-      categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998],
-    },
-  };
-  series = [
-    {
-      name: 'series-1',
-      data: [30, 40, 45, 50, 49, 60, 70, 91],
-    },
-  ];
+  @Prop() categories!: [];
+  @Prop() data!: [];
+
+  get options() {
+    return {
+      chart: {
+        id: 'line-chart',
+      },
+      xaxis: {
+        categories: this.categories,
+      },
+    };
+  }
+
+  get series() {
+    return [
+      {
+        name: 'series-1',
+        data: this.data,
+      },
+    ];
+  }
 }
 </script>
 
