@@ -10,8 +10,8 @@
       </thead>
       <tbody>
         <tr>
-          <td colspan="2">
-            <ul v-for="(value, key) in filterSettings" :key="value.ID">
+          <td v-for="(value, key) in filterSettings" :key="value.ID">
+            <ul>
               <li v-for="(item, val) in value" :key="val">
                 <AAIconButton
                   :class="{ 'selected-button': item }"
@@ -26,7 +26,9 @@
         </tr>
       </tbody>
     </table>
-    <AAIconButton @click="closeFilterDialog()">Fertig</AAIconButton>
+    <AAIconButton class="exit-button" @click="closeFilterDialog()">
+      Fertig
+    </AAIconButton>
   </vm-dialog>
 </template>
 
@@ -65,5 +67,9 @@ export default class FilterDialog extends Vue {
 ul {
   display: table-cell;
   list-style: none;
+  padding: 0px;
+}
+.exit-button {
+  float: right;
 }
 </style>

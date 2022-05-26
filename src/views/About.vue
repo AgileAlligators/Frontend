@@ -50,8 +50,6 @@ export default class About extends Vue {
   carrierTimeStamps: number[] = [];
   carrierLoad: number[] = [];
 
-  currentlySelectedCarrier = {};
-
   get selectedCarrier(): {
     customer: string;
     id: number;
@@ -73,17 +71,18 @@ export default class About extends Vue {
       return;
     }
     const request = {
-      ids: ['6281285f37be3a7921b94999'],
+      ids: [String(this.selectedCarrier.id)],
       dataRequest: 'loadOverTime',
-      start: 1652632272000,
-      end: 1652632892123,
+      start: startTime,
+      end: endTime,
     };
     backend.post('diagram/line-diagram', request).then((response) => {
-      response.data[0].dataPairs.forEach((element: number[]) => {
-        this.carrierTimeStamps.push(element[0]);
-        this.carrierLoad.push(element[1]);
-        console.warn('test');
-      });
+      if (response.data.length > 0) {
+        response.data[0].dataPairs.forEach((element: number[]) => {
+          this.carrierTimeStamps.push(element[0]);
+          this.carrierLoad.push(element[1]);
+        });
+      }
     });
   }
 }
