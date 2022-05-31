@@ -1,10 +1,23 @@
 <template>
-  <vm-dialog :value="filterDialog" title="Filter">
+  <vm-dialog :value="filterDialog" title="Ladungsträger herausfiltern">
     <table>
       <thead>
         <tr>
           <template v-for="(value, option) in filterSettings">
-            <th :key="value.id">{{ option }}</th>
+            <th :key="value.id">
+              <template v-if="option === 'id'">
+                {{ 'ID' }}
+              </template>
+              <template v-else-if="option === 'type'">
+                {{ 'Typ' }}
+              </template>
+              <template v-else-if="option === 'customer'">
+                {{ 'Kunde' }}
+              </template>
+              <template v-else-if="option === 'order'">
+                {{ 'Bestellung' }}
+              </template>
+            </th>
           </template>
         </tr>
       </thead>

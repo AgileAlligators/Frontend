@@ -6,18 +6,20 @@
           <template v-for="value in ['id', 'type', 'customer', 'order']">
             <th :key="value" class="table-header">
               <div class="header-container">
-                <template v-if="value === 'id'">
-                  {{ 'ID' }}
-                </template>
-                <template v-else-if="value === 'type'">
-                  {{ 'Typ' }}
-                </template>
-                <template v-else-if="value === 'customer'">
-                  {{ 'Kunde' }}
-                </template>
-                <template v-else-if="value === 'order'">
-                  {{ 'Bestellung' }}
-                </template>
+                <div class="header-cell">
+                  <template v-if="value === 'id'">
+                    {{ 'ID' }}
+                  </template>
+                  <template v-else-if="value === 'type'">
+                    {{ 'Typ' }}
+                  </template>
+                  <template v-else-if="value === 'customer'">
+                    {{ 'Kunde' }}
+                  </template>
+                  <template v-else-if="value === 'order'">
+                    {{ 'Bestellung' }}
+                  </template>
+                </div>
                 <div class="arrow-container">
                   <div @click="sort(value, 'asc')">
                     <aiChevronLeftVue
@@ -180,8 +182,11 @@ export default Vue.extend({
 
 <style lang="scss" scoped>
 .header-container {
-  display: flex;
-  height: 50px;
+  display: table;
+  .header-cell {
+    display: table-cell;
+    vertical-align: middle;
+  }
 }
 .arrow-container {
   width: 20px;
@@ -191,8 +196,8 @@ export default Vue.extend({
   color: rgba(var(--vm-primary), 1);
 }
 svg {
-  height: 20px;
-  width: 20px;
+  height: 12px;
+  width: 12px;
   transform: rotate(90deg) !important;
 }
 .list-entry {
@@ -210,5 +215,8 @@ svg {
 .table-header {
   min-width: 150px;
   float: left;
+}
+th:first-child {
+  padding-left: 0.95em;
 }
 </style>

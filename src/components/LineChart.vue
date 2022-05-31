@@ -1,7 +1,7 @@
 <template>
   <div class="lineDiagram">
     <apexchart
-      width="1200"
+      width="1100"
       type="line"
       :options="options"
       :series="series"

@@ -1,22 +1,25 @@
 <template>
   <AAView class="view-charts">
-    <select v-model="selected">
-      <template v-for="item in options">
-        <option :value="item" :key="item">
-          {{ item }}
-        </option>
-      </template>
-    </select>
     <div>
+      <select class="chart-select" v-model="selected">
+        <template v-for="item in options">
+          <option :value="item" :key="item">
+            {{ item }}
+          </option>
+        </template>
+      </select>
       <label for="startTime">Anfangszeit:</label>
       <vm-input v-model="startingDate" type="date" />
-    </div>
-    <div>
       <label for="startTime">Endzeit:</label>
       <vm-input v-model="endingDate" type="date" />
+      <span v-if="Object.keys(selectedCarrier).length > 0">
+        Ladungsträger:
+        {{ selectedCarrier.id }} {{ selectedCarrier.type }}
+        {{ selectedCarrier.customer }} {{ selectedCarrier.order }}
+      </span>
     </div>
     <AAIconButton @click="updateTimeFrame">Diagramm aktualisieren</AAIconButton>
-    <LineDiagram
+    <LineChart
       v-if="selected === 'Liniendiagramm'"
       :categories="chartTimeStamps"
       :data="chartLoadScale"
@@ -26,22 +29,19 @@
       :categories="chartTimeStamps"
       :data="chartLoadScale"
     />
-    <div v-if="Object.keys(selectedCarrier).length > 0">
-      Ausgewählter Ladungsträger: {{ selectedCarrier }}
-    </div>
   </AAView>
 </template>
 
 <script lang="ts">
 import AAView from '@/components/AAView.vue';
 import { Vue, Component } from 'vue-property-decorator';
-import LineDiagram from '@/components/LineDiagram.vue';
+import LineChart from '@/components/LineChart.vue';
 import BarChart from '@/components/BarChart.vue';
 import AAIconButton from '@/components/AAIconButton.vue';
 import { backend } from '@/utils/backend';
 import filterStore from '@/store/filterStore';
 
-@Component({ components: { AAView, LineDiagram, BarChart, AAIconButton } })
+@Component({ components: { AAView, LineChart, BarChart, AAIconButton } })
 export default class Charts extends Vue {
   selected = '';
   options = ['Liniendiagramm', 'Balkendiagramm'];
@@ -102,5 +102,8 @@ export default class Charts extends Vue {
 <style lang="scss" scoped>
 .view-charts {
   //
+}
+.chart-select {
+  margin-right: 5px;
 }
 </style>
