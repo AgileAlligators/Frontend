@@ -16,6 +16,7 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 export default class LineDiagram extends Vue {
   @Prop() categories!: [];
   @Prop() data!: [];
+  @Prop() label!: string;
 
   get options() {
     return {
@@ -31,7 +32,7 @@ export default class LineDiagram extends Vue {
   get series() {
     return [
       {
-        name: 'series-1',
+        name: this.label,
         data: this.data,
       },
     ];

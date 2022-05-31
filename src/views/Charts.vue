@@ -23,11 +23,13 @@
       v-if="selected === 'Liniendiagramm'"
       :categories="chartTimeStamps"
       :data="chartLoadScale"
+      :label="'Belastung'"
     />
     <BarChart
       v-else-if="selected === 'Balkendiagramm'"
       :categories="chartTimeStamps"
       :data="chartLoadScale"
+      :label="'Belastung'"
     />
   </AAView>
 </template>
@@ -90,7 +92,15 @@ export default class Charts extends Vue {
           return a[0] - b[0];
         });
         sortedResponseByDate.forEach((element: number[]) => {
-          this.chartTimeStamps.push(new Date(element[0]).toDateString());
+          const date = new Date(element[0]);
+          const time = `${
+            date.getHours() < 10
+              ? '0' + date.getHours().toString()
+              : date.getHours()
+          }:${date.getMinutes()}:${date.getSeconds()}`;
+          this.chartTimeStamps.push(
+            new Date(element[0]).toDateString() + ' ' + time
+          );
           this.chartLoadScale.push(element[1].toFixed(2));
         });
       }
