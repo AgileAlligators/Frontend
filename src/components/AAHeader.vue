@@ -35,7 +35,7 @@
       <template v-if="$store.getters.user">
         <vm-navbar-item routeName="account" title="Account" />
         <vm-navbar-item routeName="home" title="Übersicht" />
-        <vm-navbar-item routeName="about" title="Über" />
+        <vm-navbar-item routeName="charts" title="Diagramme" />
       </template>
     </template>
   </vm-navbar>

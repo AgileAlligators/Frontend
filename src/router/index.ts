@@ -40,11 +40,11 @@ const router = new VueRouter({
       },
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/About.vue'),
+      path: '/charts',
+      name: 'charts',
+      component: () => import('@/views/Charts.vue'),
       meta: {
-        PAGE_TITLE: 'Über',
+        PAGE_TITLE: 'Diagramme',
       },
     },
     { path: '*', redirect: { name: 'home' } },

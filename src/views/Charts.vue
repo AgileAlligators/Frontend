@@ -1,5 +1,5 @@
 <template>
-  <AAView class="view-about">
+  <AAView class="view-charts">
     <select v-model="selected">
       <template v-for="item in options">
         <option :value="item" :key="item">
@@ -17,14 +17,14 @@
     </div>
     <AAIconButton @click="updateTimeFrame">Diagramm aktualisieren</AAIconButton>
     <LineDiagram
-      v-if="selected === 'Line Chart'"
-      :categories="carrierTimeStamps"
-      :data="carrierLoad"
+      v-if="selected === 'Liniendiagramm'"
+      :categories="chartTimeStamps"
+      :data="chartLoadScale"
     />
     <BarChart
-      v-else-if="selected === 'Bar Chart'"
-      :categories="carrierTimeStamps"
-      :data="carrierLoad"
+      v-else-if="selected === 'Balkendiagramm'"
+      :categories="chartTimeStamps"
+      :data="chartLoadScale"
     />
     <div v-if="Object.keys(selectedCarrier).length > 0">
       Ausgewählter Ladungsträger: {{ selectedCarrier }}
@@ -42,13 +42,13 @@ import { backend } from '@/utils/backend';
 import filterStore from '@/store/filterStore';
 
 @Component({ components: { AAView, LineDiagram, BarChart, AAIconButton } })
-export default class About extends Vue {
+export default class Charts extends Vue {
   selected = '';
-  options = ['Line Chart', 'Bar Chart'];
+  options = ['Liniendiagramm', 'Balkendiagramm'];
   startingDate = '';
   endingDate = '';
-  carrierTimeStamps: number[] = [];
-  carrierLoad: number[] = [];
+  chartTimeStamps: string[] = [];
+  chartLoadScale: string[] = [];
 
   get selectedCarrier(): {
     customer: string;
@@ -64,10 +64,14 @@ export default class About extends Vue {
   }
   updateTimeFrame(): void {
     // convert to unix
-    const startTime = Math.floor(new Date(this.startingDate).getTime() / 1000);
-    const endTime = Math.floor(new Date(this.endingDate).getTime() / 1000);
+    const startTime = Math.floor(new Date(this.startingDate).getTime());
+    const endTime = Math.floor(new Date(this.endingDate).getTime());
     if (startTime > endTime) {
       console.error('selected dates not correct');
+      return;
+    }
+    if (this.selectedCarrier === undefined) {
+      console.error('no carrier has been selected!');
       return;
     }
     const request = {
@@ -78,9 +82,16 @@ export default class About extends Vue {
     };
     backend.post('diagram/line-diagram', request).then((response) => {
       if (response.data.length > 0) {
-        response.data[0].dataPairs.forEach((element: number[]) => {
-          this.carrierTimeStamps.push(element[0]);
-          this.carrierLoad.push(element[1]);
+        console.error(response.data[0].dataPairs);
+        const sortedResponseByDate = response.data[0].dataPairs.sort(function (
+          a: [number, number],
+          b: [number, number]
+        ) {
+          return a[0] - b[0];
+        });
+        sortedResponseByDate.forEach((element: number[]) => {
+          this.chartTimeStamps.push(new Date(element[0]).toDateString());
+          this.chartLoadScale.push(element[1].toFixed(2));
         });
       }
     });
@@ -89,7 +100,7 @@ export default class About extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.view-about {
+.view-charts {
   //
 }
 </style>

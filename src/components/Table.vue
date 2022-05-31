@@ -6,7 +6,18 @@
           <template v-for="value in ['id', 'type', 'customer', 'order']">
             <th :key="value" class="table-header">
               <div class="header-container">
-                {{ value }}
+                <template v-if="value === 'id'">
+                  {{ 'ID' }}
+                </template>
+                <template v-else-if="value === 'type'">
+                  {{ 'Typ' }}
+                </template>
+                <template v-else-if="value === 'customer'">
+                  {{ 'Kunde' }}
+                </template>
+                <template v-else-if="value === 'order'">
+                  {{ 'Bestellung' }}
+                </template>
                 <div class="arrow-container">
                   <div @click="sort(value, 'asc')">
                     <aiChevronLeftVue
@@ -160,7 +171,7 @@ export default Vue.extend({
       order: string;
       type: string;
     }): void {
-      this.$router.push({ name: 'about' });
+      this.$router.push({ name: 'charts' });
       filterStore.commit('selectCarrier', item);
     },
   },
