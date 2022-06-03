@@ -14,10 +14,10 @@ const states = {
     },
     order: {
       Order1: false,
-      Order2: false
-    }
+      Order2: false,
+    },
   },
-  selectedCarrier: {}
+  selectedCarrier: {},
 };
 
 export default new Vuex.Store({
@@ -28,7 +28,7 @@ export default new Vuex.Store({
     },
     currentSelectedCarrier: (state: typeof states) => {
       return state.selectedCarrier;
-    }
+    },
   },
   mutations: {
     updateFilter(state: typeof states, updatedFilter) {
@@ -36,6 +36,6 @@ export default new Vuex.Store({
     },
     selectCarrier(state: typeof states, carrier) {
       state.selectedCarrier = carrier;
-    }
+    },
   },
 });

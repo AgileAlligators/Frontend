@@ -18,7 +18,7 @@ export default class BarChart extends Vue {
   @Prop() data!: [];
   @Prop() label!: string;
 
-  get options() {
+  get options(): unknown {
     return {
       chart: {
         id: 'line-chart',
@@ -29,7 +29,7 @@ export default class BarChart extends Vue {
     };
   }
 
-  get series() {
+  get series(): unknown {
     return [
       {
         name: this.label,
