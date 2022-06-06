@@ -7,7 +7,7 @@
       <vm-flow slot="title">
         <vm-button title="Abmelden" background="error" @click="signOut" />
       </vm-flow>
-      Dein Login läuft am {{ loginLasts }} Uhr ab.
+      Dein Login läuft {{ loginLasts }} ab.
     </AASection>
     <AASection title="Berechtigungen" :subtitle="'Gruppe: ' + account.group">
       <div v-if="account.group === 'admin'">Du besitzt alle Berechtigungen</div>
@@ -99,7 +99,6 @@ export default class Account extends Vue {
         .get('account/')
         .then(({ data }) => {
           this.accounts = data;
-          console.log('accounts', data);
         })
         .catch(noop);
     }
@@ -110,7 +109,8 @@ export default class Account extends Vue {
   }
 
   get loginLasts(): string {
-    return Intl.DateTimeFormat('de-de', {
+    if (!this.account.exp) return 'NIEMALS';
+    const time = Intl.DateTimeFormat('de-de', {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
@@ -120,6 +120,8 @@ export default class Account extends Vue {
     })
       .format(this.account.exp * 1000)
       .replace(',', ' um');
+
+    return 'am ' + time + ' Uhr';
   }
 
   public signOut(): void {

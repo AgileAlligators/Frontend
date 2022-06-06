@@ -2,7 +2,9 @@
   <div class="aa-router">
     <transition :name="noAnim ? undefined : transitionName" appear>
       <div class="sub-view" :key="$route.path">
-        <router-view />
+        <keep-alive>
+          <router-view />
+        </keep-alive>
       </div>
     </transition>
   </div>

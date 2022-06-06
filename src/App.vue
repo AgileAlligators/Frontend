@@ -7,6 +7,10 @@
     <AARouter />
 
     <AAUpdateAvailable v-model="updateAvailable" @refresh="refresh" />
+
+    <template v-if="$store.getters.user">
+      <AADialogFilter />
+    </template>
   </div>
 </template>
 
@@ -18,10 +22,13 @@ import AARouter from '@/components/AARouter.vue';
 import AAUpdateAvailable from './components/dialogs/AAUpdateAvailable.vue';
 import AASidebar from './components/sidebar/AASidebar.vue';
 import AAHeader from './components/AAHeader.vue';
+import AADialogFilter from './components/dialogs/AADialogFilter.vue';
 
 @Component({
   components: {
     AAUpdateAvailable,
+    AADialogFilter,
+
     AARouter,
     AASidebar,
     AAHeader,

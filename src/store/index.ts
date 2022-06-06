@@ -1,5 +1,6 @@
 import router from '@/router';
 import { User } from '@/utils/authenticator';
+import { EventBus } from '@/utils/constants';
 import Vue from 'vue';
 import { noop } from 'vue-class-component/lib/util';
 import { RawLocation } from 'vue-router';
@@ -14,6 +15,14 @@ const states = {
   safari: /^((?!chrome|android).)*safari/i.test(navigator.userAgent),
   user: null as null | User,
   savedRoute: null as null | RawLocation,
+
+  dialog_filter: false,
+  filter: {
+    types: [] as string[],
+    customers: [] as string[],
+    orders: [] as string[],
+  },
+  selection: {} as Record<string, boolean>,
 };
 
 export default new Vuex.Store({
@@ -40,6 +49,9 @@ export default new Vuex.Store({
     user: (state: typeof states): User | null => {
       return state.user;
     },
+    filter: (state: typeof states) => {
+      return state.filter;
+    },
   },
   mutations: {
     desktop(state: typeof states, desktop: boolean) {
@@ -63,6 +75,23 @@ export default new Vuex.Store({
     },
     savedRoute(state: typeof states, route: RawLocation): void {
       state.savedRoute = route;
+    },
+
+    dialog_filter(state: typeof states, open: boolean) {
+      state.dialog_filter = open;
+      if (!open) EventBus.$emit('reload-carriers');
+    },
+    filter_types(state: typeof states, types: string[] | null) {
+      state.filter.types = types || [];
+      state.selection = {};
+    },
+    filter_customers(state: typeof states, customers: string[] | null) {
+      state.filter.customers = customers || [];
+      state.selection = {};
+    },
+    filter_orders(state: typeof states, orders: string[] | null) {
+      state.filter.orders = orders || [];
+      state.selection = {};
     },
   },
 });

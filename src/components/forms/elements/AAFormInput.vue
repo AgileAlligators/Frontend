@@ -51,6 +51,7 @@ export default class AAFormInput extends Vue {
   @Prop() options!: string[];
   @Prop({ default: true }) showRemove!: boolean;
   @Prop() autocomplete!: string;
+  @Prop({ default: false }) allowDefaultNull!: boolean;
 
   public innerValue = this.defaultValue || null;
 
@@ -65,7 +66,9 @@ export default class AAFormInput extends Vue {
   }
 
   get defaultValue(): string | number | undefined {
-    return this.convert(this.value);
+    return this.allowDefaultNull && !this.value
+      ? undefined
+      : this.convert(this.value);
   }
 
   private convert(val: string | number): string | number | undefined {

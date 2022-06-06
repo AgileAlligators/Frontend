@@ -68,8 +68,6 @@ export default class AAAccountCreateAccount extends Vue {
         });
 
         const update = [...this.accounts, data];
-        console.log('accounts', update);
-
         this.$emit('accounts', update);
       })
       .catch(({ messages }) =>

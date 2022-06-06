@@ -24,6 +24,7 @@
       :value="inValue"
       :title="title"
       @click.stop="$refs.select.toggleVisible()"
+      @reset="reset"
     />
   </div>
 </template>
@@ -57,6 +58,11 @@ export default class AAFormSelect extends Vue {
   @Watch('value', { deep: true, immediate: true })
   valueChanged(): void {
     this.innerValue = this.value || (this.multiple ? [] : '');
+  }
+
+  public reset(): void {
+    this.innerValue = this.multiple ? [] : '';
+    this.$emit('input', this.innerValue);
   }
 
   public toggle(id: string): void {
