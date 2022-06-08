@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import { backend } from '@/utils/backend';
+import { EventBus } from '@/utils/constants';
 import { getCounter, strippedFilter } from '@/utils/functions';
 import { Carrier } from '@/utils/interfaces';
 import { noop } from 'vue-class-component/lib/util';
@@ -49,6 +50,8 @@ export default class AALoadChart extends Vue {
     this.loadData().then(noop);
     this.resetPeriod('start');
     this.resetPeriod('end');
+
+    EventBus.$on('reload-carriers', () => this.loadData().then(noop));
   }
 
   public updatePeriod(period: 'start' | 'end', to: string): void {

@@ -40,7 +40,7 @@ import { Carrier } from '@/utils/interfaces';
 import { backend } from '@/utils/backend';
 import AACarrierTable from '@/components/AACarrierTable.vue';
 import AAIconButton from '@/components/AAIconButton.vue';
-import { getCounter, strippedFilter } from '@/utils/functions';
+import { strippedFilter } from '@/utils/functions';
 import AALoadChart from '@/components/charts/AALoadChart.vue';
 
 @Component({
@@ -101,6 +101,9 @@ export default class Home extends Vue {
       .then(({ data }) => {
         this.total = data.total;
         this.carriers = data.results;
+        if (this.page > this.pages) {
+          this.$router.push({ query: { page: `${this.pages}` } });
+        }
       });
   }
 }

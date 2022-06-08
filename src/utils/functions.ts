@@ -48,6 +48,7 @@ export function convertId(mongoId: string): number[] {
 
 export function getCounter(mongoId: string): string {
   let counter = '' + (convertId(mongoId)[2] - 18838);
+  // TODO: maybe improve if possible
   while (counter.length !== 3) counter = '0' + counter;
   return counter;
 }
