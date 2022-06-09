@@ -47,6 +47,14 @@ const router = new VueRouter({
         PAGE_TITLE: 'Diagramme',
       },
     },
+    {
+      path: '/hotspots',
+      name: 'hotspots',
+      component: () => import('@/views/Hotspots.vue'),
+      meta: {
+        PAGE_TITLE: 'Hotspots',
+      },
+    },
     { path: '*', redirect: { name: 'home' } },
   ],
 });

@@ -8,7 +8,8 @@
     <div class="items" v-if="$store.getters.user">
       <AASidebarItem route="account" title="Account" icon="account" />
       <AASidebarItem route="home" title="Übersicht" icon="home" />
-      <AASidebarItem route="charts" title="Diagramme" icon="home" />
+      <AASidebarItem route="charts" title="Diagramme" icon="charts" />
+      <AASidebarItem route="hotspots" title="Hotspots" icon="hotspots" />
     </div>
   </div>
 </template>

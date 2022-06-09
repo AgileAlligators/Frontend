@@ -1,5 +1,9 @@
 <template>
-  <AASection class="aa-load-chart" title="Beladung" subtitle="Zeitraum wählen">
+  <AASection
+    class="aa-idle-chart"
+    title="Standzeiten"
+    subtitle="Zeitraum wählen"
+  >
     <div class="period-picker">
       <AAFormInput
         type="datetime-local"
@@ -20,7 +24,7 @@
     </div>
 
     <apexchart
-      type="line"
+      type="bar"
       height="500"
       width="100%"
       :options="options"
@@ -40,7 +44,7 @@ import AASection from '../AASection.vue';
 import AAFormInput from '../forms/elements/AAFormInput.vue';
 
 @Component({ components: { AASection, AAFormInput, AAIconButton } })
-export default class AALoadChart extends Vue {
+export default class AAIdleChart extends Vue {
   public series = [];
   public period = { start: null as null | number, end: null as null | number };
 
@@ -70,7 +74,7 @@ export default class AALoadChart extends Vue {
     if (start) options.start = new Date(start).getTime();
     if (end) options.end = new Date(end).getTime();
 
-    const res = await backend.post('diagram/load', options);
+    const res = await backend.post('diagram/idle', options);
     const mapped = (
       res.data as { name: string; data: { x: number; y: number }[] }[]
     ).map(({ name, data }) => {
@@ -113,13 +117,14 @@ export default class AALoadChart extends Vue {
       },
       stroke: { lineCap: 'round', width: 3, curve: 'straight' },
       theme: { mode: this.$store.getters.dark ? 'dark' : 'light' },
+      dataLabels: { enabled: false },
     };
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.aa-load-chart {
+.aa-idle-chart {
   .period-picker {
     display: grid;
     grid-template-columns: 1fr 1fr;
