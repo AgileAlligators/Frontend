@@ -1,5 +1,12 @@
 <template>
   <AASection class="aa-load-chart" title="Beladung" subtitle="Zeitraum wählen">
+    <AAIconButton
+      slot="title"
+      @click="$store.commit('dialog_filter', true)"
+      v-title="'Ladungsträger filtern'"
+      icon="filter"
+    />
+
     <div class="period-picker">
       <AAFormInput
         type="datetime-local"
@@ -19,13 +26,9 @@
       />
     </div>
 
-    <apexchart
-      type="line"
-      height="500"
-      width="100%"
-      :options="options"
-      :series="series"
-    />
+    <div class="chart-wrapper">
+      <apexchart height="500" type="line" :options="options" :series="series" />
+    </div>
   </AASection>
 </template>
 
@@ -122,13 +125,24 @@ export default class AALoadChart extends Vue {
 .aa-load-chart {
   .period-picker {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    @media only screen and(min-width: 550px) {
+      grid-template-columns: 1fr 1fr;
+    }
     grid-gap: 10px;
 
     margin-top: -10px;
     margin-bottom: 10px;
     border-bottom: 1px solid rgba(var(--vm-border), 1);
     padding-bottom: 10px;
+  }
+  .chart-wrapper {
+    width: calc(90vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+    @media #{$isDesktop} {
+      width: calc(
+        90vw - env(safe-area-inset-left) - env(safe-area-inset-right) - #{$sidebar-width}
+      );
+    }
+    overflow: auto;
   }
 }
 </style>

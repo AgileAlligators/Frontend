@@ -4,6 +4,13 @@
     title="Standzeiten"
     subtitle="Zeitraum wählen"
   >
+    <AAIconButton
+      slot="title"
+      @click="$store.commit('dialog_filter', true)"
+      v-title="'Ladungsträger filtern'"
+      icon="filter"
+    />
+
     <div class="period-picker">
       <AAFormInput
         type="datetime-local"
@@ -23,13 +30,9 @@
       />
     </div>
 
-    <apexchart
-      type="bar"
-      height="500"
-      width="100%"
-      :options="options"
-      :series="series"
-    />
+    <div class="chart-wrapper">
+      <apexchart type="bar" height="500" :options="options" :series="series" />
+    </div>
   </AASection>
 </template>
 
@@ -127,13 +130,25 @@ export default class AAIdleChart extends Vue {
 .aa-idle-chart {
   .period-picker {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    @media only screen and(min-width: 550px) {
+      grid-template-columns: 1fr 1fr;
+    }
     grid-gap: 10px;
 
     margin-top: -10px;
     margin-bottom: 10px;
     border-bottom: 1px solid rgba(var(--vm-border), 1);
     padding-bottom: 10px;
+  }
+
+  .chart-wrapper {
+    width: calc(90vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+    @media #{$isDesktop} {
+      width: calc(
+        90vw - env(safe-area-inset-left) - env(safe-area-inset-right) - #{$sidebar-width}
+      );
+    }
+    overflow: auto;
   }
 }
 </style>
