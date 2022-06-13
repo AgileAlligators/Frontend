@@ -10,6 +10,7 @@
       <AASidebarItem route="home" title="Übersicht" icon="home" />
       <AASidebarItem route="charts" title="Diagramme" icon="charts" />
       <AASidebarItem route="hotspots" title="Hotspots" icon="hotspots" />
+      <AASidebarItem route="guide" title="Handbuch" icon="hotspots" />
     </div>
   </div>
 </template>

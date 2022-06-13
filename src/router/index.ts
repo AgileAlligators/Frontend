@@ -55,6 +55,14 @@ const router = new VueRouter({
         PAGE_TITLE: 'Hotspots',
       },
     },
+    {
+      path: '/guide',
+      name: 'guide',
+      component: () => import('@/views/Guide.vue'),
+      meta: {
+        PAGE_TITLE: 'Guide',
+      },
+    },
     { path: '*', redirect: { name: 'home' } },
   ],
 });

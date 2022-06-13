@@ -34,6 +34,14 @@ export default class AAIdleHotspot extends Vue {
       color: '#08f',
       radius: 12,
     }).addTo(map);
+
+    [
+      {
+        id: 'LT',
+        timestamp: 1,
+        coordinates: [1, 1],
+      },
+    ];
   }
 }
 </script>
