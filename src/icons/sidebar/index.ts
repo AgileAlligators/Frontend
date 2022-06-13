@@ -3,6 +3,8 @@ import aiAccount from './aiAccount.vue';
 import aiAccountFilled from './aiAccountFilled.vue';
 import aiCharts from './aiCharts.vue';
 import aiChartsFilled from './aiChartsFilled.vue';
+import aiGuide from './aiGuide.vue';
+import aiGuideFilled from './aiGuideFilled.vue';
 import aiHome from './aiHome.vue';
 import aiHomeFilled from './aiHomeFilled.vue';
 import aiHotspots from './aiHotspots.vue';
@@ -18,4 +20,6 @@ export const AlligatorIconsSidebar: PluginFunction<unknown> =
     Vue.component('ai-charts-filled', aiChartsFilled);
     Vue.component('ai-hotspots', aiHotspots);
     Vue.component('ai-hotspots-filled', aiHotspotsFilled);
+    Vue.component('ai-guide', aiGuide);
+    Vue.component('ai-guide-filled', aiGuideFilled);
   };
