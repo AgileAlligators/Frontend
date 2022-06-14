@@ -15,9 +15,7 @@
       <table>
         <thead>
           <tr>
-            <td>
-              <vm-checkbox v-title="'Alle auswählen'" v-model="allSelected" />
-            </td>
+            <td />
             <th
               v-for="(v, k) in headers"
               @click="sort(k)"
@@ -78,10 +76,6 @@ export default class AACarrierTable extends Vue {
   public total = 0;
   public carriers: Carrier[] = [];
 
-  $refs!: {
-    checkall: Vue;
-  };
-
   mounted(): void {
     this.loadCarriers();
     EventBus.$on('reload-carriers', this.loadCarriers);
@@ -116,9 +110,12 @@ export default class AACarrierTable extends Vue {
   }
 
   public loadCarriers(): void {
+    const filter = strippedFilter();
+    delete filter.ids;
+
     backend
       .post('carrier/search', {
-        ...strippedFilter(),
+        ...filter,
         skip: (this.page - 1) * this.amount,
         limit: this.amount,
       })
@@ -133,22 +130,12 @@ export default class AACarrierTable extends Vue {
 
   // Table stuff
 
-  get allSelected(): boolean {
-    return this.carriers.every((c) => this.$store.state.selection[c.id]);
-  }
-
-  set allSelected(state: boolean) {
-    this.carriers.forEach((c) => {
-      this.$store.state.selection[c.id] = state;
-    });
-    this.$forceUpdate();
-  }
-
   public headers = {
     id: '#ID',
     type: 'LT Art',
     customer: 'Kunde',
     order: 'Bestellung',
+    component: 'Bauteil',
   };
 
   get items(): Carrier[] {

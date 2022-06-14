@@ -6,6 +6,8 @@ import aiDotsH from './aiDotsH.vue';
 import aiFilter from './aiFilter.vue';
 import aiLens from './aiLens.vue';
 import aiMoon from './aiMoon.vue';
+import aiPause from './aiPause.vue';
+import aiPlay from './aiPlay.vue';
 import aiPlus from './aiPlus.vue';
 import aiRemove from './aiRemove.vue';
 import aiSun from './aiSun.vue';
@@ -22,4 +24,6 @@ export const AlligatorIconsEtc: PluginFunction<unknown> =
     Vue.component('ai-sun', aiSun);
     Vue.component('ai-moon', aiMoon);
     Vue.component('ai-filter', aiFilter);
+    Vue.component('ai-play', aiPlay);
+    Vue.component('ai-pause', aiPause);
   };

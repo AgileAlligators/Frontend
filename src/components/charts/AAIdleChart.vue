@@ -52,9 +52,9 @@ export default class AAIdleChart extends Vue {
   public period = { start: null as null | number, end: null as null | number };
 
   mounted(): void {
-    this.loadData().then(noop);
     this.resetPeriod('start');
     this.resetPeriod('end');
+    this.loadData().then(noop);
 
     EventBus.$on('reload-carriers', () => this.loadData().then(noop));
   }

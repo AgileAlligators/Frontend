@@ -32,6 +32,14 @@
         :multiple="true"
         @input="$store.commit('filter_orders', $event)"
       />
+
+      <AAFormSelect
+        title="Bauteile"
+        :values="components"
+        :value="$store.getters.filter.components"
+        :multiple="true"
+        @input="$store.commit('filter_components', $event)"
+      />
     </div>
   </vm-dialog>
 </template>
@@ -55,6 +63,7 @@ export default class AADialogFilter extends Mixins(AADialogMixin) {
   public customers: Selectable[] = [];
   public types: Selectable[] = [];
   public orders: Selectable[] = [];
+  public components: Selectable[] = [];
 
   mounted(): void {
     backend.get('carrier/customers').then(({ data }) => {
@@ -68,6 +77,10 @@ export default class AADialogFilter extends Mixins(AADialogMixin) {
     backend.get('carrier/orders').then(({ data }) => {
       this.orders = data.map((d: string) => stringToSelectable(d));
       this.$store.commit('filter_orders', data);
+    });
+    backend.get('carrier/components').then(({ data }) => {
+      this.components = data.map((d: string) => stringToSelectable(d));
+      this.$store.commit('filter_components', data);
     });
   }
 }

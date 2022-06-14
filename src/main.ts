@@ -8,7 +8,7 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import { Authenticator } from './utils/authenticator';
-import { convertId, getCounter } from './utils/functions';
+import { convertId, date, getCounter } from './utils/functions';
 import { PermsDirective } from './utils/perms.directive';
 
 Vue.config.productionTip = false;
@@ -37,6 +37,7 @@ Vue.use(Vuement, {
 
 Vue.prototype.$convId = convertId;
 Vue.prototype.$counter = getCounter;
+Vue.prototype.$date = date;
 
 Vue.use(AlligatorIcons);
 Vue.use(vTitle, {

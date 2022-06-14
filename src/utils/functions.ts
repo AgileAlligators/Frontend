@@ -47,16 +47,25 @@ export function convertId(mongoId: string): number[] {
 }
 
 export function getCounter(mongoId: string): string {
-  let counter = '' + (convertId(mongoId)[2] - 18838);
-  // TODO: maybe improve if possible
-  while (counter.length !== 3) counter = '0' + counter;
-  return counter;
+  return ('00000' + (convertId(mongoId)[2] - 18838)).slice(-3);
 }
 
 export function strippedFilter(): Record<string, string[]> {
   const filter: Record<string, string[]> = store.getters.filter;
+  const ids: string[] | undefined = store.getters.selection;
   Object.entries(filter).forEach(([key, value]) => {
     if (value.length === 0) delete filter[key];
   });
+  if (ids) filter.ids = ids;
   return filter;
+}
+
+export function date(timestamp: number): string {
+  return Intl.DateTimeFormat('de-de', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(timestamp);
 }
