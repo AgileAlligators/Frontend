@@ -25,9 +25,9 @@ module.exports = {
         },
       ],
     },
-    name: 'AA Frontend',
-    themeColor: '#dc2626',
-    msTileColor: '#dc2626',
+    name: 'Track+',
+    themeColor: '#419F52',
+    msTileColor: '#419F52',
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'black-translucent',
     iconPaths: {

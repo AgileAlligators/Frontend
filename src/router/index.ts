@@ -4,7 +4,7 @@ import Vue from 'vue';
 import VueRouter, { Route } from 'vue-router';
 
 Vue.use(VueRouter);
-export const suffix = ' | Agile Alligators';
+export const suffix = ' | Ligenium Track+';
 
 const router = new VueRouter({
   scrollBehavior(to, _, savedPosition) {
