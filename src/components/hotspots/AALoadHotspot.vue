@@ -17,6 +17,38 @@
         v-title="'Animation pausieren'"
         icon="pause"
       />
+      <vm-action title="Geschwindigkeit anpassen">
+        <AAIconButton
+          v-title="'Geschwindigkeit anpassen'"
+          icon="speed"
+          slot="trigger"
+        />
+        <vm-action-item
+          title="Sehr langsam"
+          :color="updateInterval === 1300 && 'primary'"
+          @click="setUpdateInterval(1300)"
+        />
+        <vm-action-item
+          title="Langsam"
+          :color="updateInterval === 1000 && 'primary'"
+          @click="setUpdateInterval(1000)"
+        />
+        <vm-action-item
+          title="Normal"
+          :color="updateInterval === 700 && 'primary'"
+          @click="setUpdateInterval(700)"
+        />
+        <vm-action-item
+          title="Schnell"
+          :color="updateInterval === 400 && 'primary'"
+          @click="setUpdateInterval(400)"
+        />
+        <vm-action-item
+          title="Sehr schnell"
+          :color="updateInterval === 100 && 'primary'"
+          @click="setUpdateInterval(100)"
+        />
+      </vm-action>
       <AAIconButton
         @click="$store.commit('dialog_filter', true)"
         v-title="'Ladungsträger filtern'"
@@ -78,6 +110,7 @@ export default class AALoadHotspot extends Vue {
   public timestamp = 0;
   public step = 300000; // 5 Minuten
   public progress = 0;
+  public updateInterval = 500;
 
   public carriers: Load[] = [];
 
@@ -91,12 +124,18 @@ export default class AALoadHotspot extends Vue {
       this.progress = (timestamp - start) / (end - start);
 
       this.updatePoints();
-    }, 500);
+    }, this.updateInterval);
   }
 
   public stopInterval(): void {
     if (this.interval) clearInterval(this.interval);
     this.interval = null;
+  }
+
+  public setUpdateInterval(to: number): void {
+    this.updateInterval = to;
+    this.stopInterval();
+    this.startInterval();
   }
 
   mounted(): void {
@@ -177,7 +216,7 @@ export default class AALoadHotspot extends Vue {
     this.end = Math.max(...timestamps);
     this.timestamp = this.start;
     this.carriers = data;
-    this.startInterval();
+    // this.startInterval();
   }
 }
 </script>
@@ -200,6 +239,7 @@ export default class AALoadHotspot extends Vue {
   #map {
     height: 500px;
     border-radius: $border-radius;
+    z-index: 0;
     overflow: hidden;
     background: rgba(var(--vm-container), 1);
   }
