@@ -35,7 +35,7 @@
 <script lang="ts">
 import { backend } from '@/utils/backend';
 import { EventBus } from '@/utils/constants';
-import { getCounter, strippedFilter } from '@/utils/functions';
+import { getCounter, strippedFilter, toPercent } from '@/utils/functions';
 import { noop } from 'vue-class-component/lib/util';
 import { Vue, Component } from 'vue-property-decorator';
 import AAIconButton from '../AAIconButton.vue';
@@ -80,7 +80,7 @@ export default class AALoadChart extends Vue {
       return {
         name: name.length === 24 ? getCounter(name) : name,
         data: data.map(({ x, y }) => {
-          return { x: x, y: Math.round(y * 10000) / 100 };
+          return { x: x, y: toPercent(y) };
         }),
       };
     });

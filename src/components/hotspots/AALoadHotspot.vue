@@ -77,7 +77,13 @@ import AAIconButton from '../AAIconButton.vue';
 import AAFormInput from '../forms/elements/AAFormInput.vue';
 import { backend } from '@/utils/backend';
 import { noop } from 'vue-class-component/lib/util';
-import { getCounter, strippedFilter } from '@/utils/functions';
+import {
+  carrierColor,
+  date,
+  getCounter,
+  strippedFilter,
+  toPercent,
+} from '@/utils/functions';
 import { EventBus } from '@/utils/constants';
 
 interface Load {
@@ -98,6 +104,7 @@ export default class AALoadHotspot extends Vue {
   public step = 300000; // 5 Minuten
   public progress = 0;
   public updateInterval = 500;
+  public zoomSet = false;
 
   public intervals = {
     'Sehr langsam': 1300,
@@ -111,6 +118,7 @@ export default class AALoadHotspot extends Vue {
 
   public startInterval(): void {
     this.stopInterval();
+    this.zoomSet = false;
     this.interval = setInterval(() => {
       const { end, start, timestamp } = this;
       if (timestamp > end) this.timestamp = start;
@@ -162,24 +170,33 @@ export default class AALoadHotspot extends Vue {
     this.layer = L.layerGroup();
 
     this.carriers.forEach(({ carrierId, dataTuples }) => {
-      dataTuples
-        .sort((a, b) => b[0] - a[0])
-        .forEach(([timestamp, coords, load]) => {
-          if (timestamp <= this.timestamp) {
-            if (this.layer)
-              L.circle(coords, {
-                radius: 10,
-                fillOpacity: load,
-                weight: 0,
-                color: '#0088ff',
-              })
-                .bindTooltip('#' + getCounter(carrierId))
-                .addTo(this.layer);
+      const record = dataTuples
+        .sort((a, b) => a[0] - b[0])
+        .filter(([timestamp]) => timestamp < this.timestamp)[0];
 
-            if (this.map) this.map.setView(coords, 18);
-            return;
-          }
-        });
+      if (record) {
+        const [timestamp, coords, load] = record;
+
+        const id = getCounter(carrierId);
+        const perc = toPercent(load);
+        const ts = date(timestamp);
+        const tooltip = `#${id} | ${perc}% am ${ts} Uhr`;
+
+        if (this.layer)
+          L.circle(coords, {
+            radius: 10,
+            fillOpacity: load,
+            weight: 0,
+            color: carrierColor(carrierId),
+          })
+            .bindTooltip(tooltip, {})
+            .addTo(this.layer);
+
+        if (this.map && !this.zoomSet) {
+          this.map.setView(coords, 18);
+          this.zoomSet = true;
+        }
+      }
     });
 
     this.layer.addTo(this.map);
@@ -211,6 +228,16 @@ export default class AALoadHotspot extends Vue {
     this.end = Math.max(...timestamps);
     this.timestamp = this.start;
     this.carriers = data;
+
+    // this.carriers.forEach(({ carrierId, dataTuples }) => {
+    //   const record = dataTuples
+    //     .map(([timestamp]) => timestamp)
+    //     .sort((a, b) => a - b)
+    //     .map((x) => date(x));
+    //   // .filter((timestamp) => timestamp < this.timestamp);
+    //   console.log(getCounter(carrierId), record);
+    // });
+
     // this.startInterval();
   }
 }

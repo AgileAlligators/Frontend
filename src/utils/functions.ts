@@ -61,11 +61,37 @@ export function strippedFilter(): Record<string, string[]> {
 }
 
 export function date(timestamp: number): string {
-  return Intl.DateTimeFormat('de-de', {
+  const dtf = Intl.DateTimeFormat('de-de', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(timestamp);
+  });
+
+  try {
+    return dtf.format(timestamp);
+  } catch (error) {
+    return dtf.format(Date.now());
+  }
+}
+
+export function carrierColor(id: string | number): string {
+  if (typeof id === 'string') id = id.length === 3 ? +id : +getCounter(id);
+  return [
+    '#F79F1F',
+    '#A3CB38',
+    '#1289A7',
+    '#D980FA',
+    '#B53471',
+    '#EE5A24',
+    '#009432',
+    '#0652DD',
+    '#9980FA',
+    '#833471',
+  ][id % 10];
+}
+
+export function toPercent(val: number): number {
+  return Math.round(val * 10000) / 100;
 }
