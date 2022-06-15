@@ -29,7 +29,7 @@ Vue.use(Vuement, {
       'color-secondary': '#86868b',
       background: '#ffffff',
       paragraph: '#f5f5f7',
-      container: '#eff1f2',
+      container: '#e4e7e9',
       border: '#d2d2d7',
     },
   },

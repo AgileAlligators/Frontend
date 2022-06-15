@@ -89,8 +89,9 @@ export default new Vuex.Store({
     },
 
     dialog_filter(state: typeof states, open: boolean) {
+      if (!open && state.dialog_filter !== open)
+        EventBus.$emit('reload-carriers');
       state.dialog_filter = open;
-      if (!open) EventBus.$emit('reload-carriers');
     },
     filter_types(state: typeof states, types: string[] | null) {
       state.filter.types = types || [];

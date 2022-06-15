@@ -4,44 +4,12 @@
     title="Beladungsentwicklung"
     :subtitle="$date(timestamp) + ' Uhr'"
   >
-    <vm-flow
+    <AAIconButton
       slot="title"
-      :key="interval || 'a'"
-      horizontal="end"
-      :style="{ flexWrap: 'wrap-reverse' }"
-    >
-      <AAIconButton
-        v-if="!interval"
-        @click="startInterval()"
-        v-title="'Animation starten'"
-        icon="play"
-      />
-      <AAIconButton
-        v-else
-        @click="stopInterval()"
-        v-title="'Animation pausieren'"
-        icon="pause"
-      />
-      <vm-action title="Geschwindigkeit anpassen">
-        <AAIconButton
-          v-title="'Geschwindigkeit anpassen'"
-          icon="speed"
-          slot="trigger"
-        />
-        <vm-action-item
-          v-for="(interval, title) in intervals"
-          :key="interval"
-          :title="title"
-          :color="updateInterval === interval && 'primary'"
-          @click="setUpdateInterval(interval)"
-        />
-      </vm-action>
-      <AAIconButton
-        @click="$store.commit('dialog_filter', true)"
-        v-title="'Ladungsträger filtern'"
-        icon="filter"
-      />
-    </vm-flow>
+      @click="$store.commit('dialog_filter', true)"
+      v-title="'Ladungsträger filtern'"
+      icon="filter"
+    />
 
     <div class="period-picker">
       <AAFormInput
@@ -62,9 +30,50 @@
       />
     </div>
 
-    <div id="map" />
+    <div class="playback">
+      <vm-flow :key="interval || 'a'">
+        <AAIconButton
+          v-if="!interval"
+          @click="startInterval()"
+          v-title="'Animation starten'"
+          icon="play"
+        />
+        <AAIconButton
+          v-else
+          @click="stopInterval()"
+          v-title="'Animation pausieren'"
+          icon="pause"
+        />
+        <vm-action title="Geschwindigkeit anpassen">
+          <AAIconButton
+            v-title="'Geschwindigkeit anpassen'"
+            icon="speed"
+            slot="trigger"
+          />
+          <vm-action-item
+            v-for="(interval, title) in intervals"
+            :key="interval"
+            :title="title"
+            :color="updateInterval === interval && 'primary'"
+            @click="setUpdateInterval(interval)"
+          />
+        </vm-action>
+        <div class="bar" />
+      </vm-flow>
 
-    <vm-progress :progress="progress" />
+      <vm-slider
+        :min="start"
+        :max="end"
+        :step="step"
+        :value="timestamp"
+        @input="
+          timestamp = +$event;
+          updatePoints();
+        "
+      />
+    </div>
+
+    <div id="map" />
   </AASection>
 </template>
 
@@ -118,13 +127,12 @@ export default class AALoadHotspot extends Vue {
 
   public startInterval(): void {
     this.stopInterval();
+
     this.zoomSet = false;
     this.interval = setInterval(() => {
       const { end, start, timestamp } = this;
       if (timestamp > end) this.timestamp = start;
       else this.timestamp += this.step;
-
-      this.progress = (timestamp - start) / (end - start);
 
       this.updatePoints();
     }, this.updateInterval);
@@ -142,14 +150,6 @@ export default class AALoadHotspot extends Vue {
   }
 
   mounted(): void {
-    this.resetPeriod('start');
-    this.resetPeriod('end');
-    this.loadData().then(noop);
-
-    this.$once('hook:beforeDestroy', this.stopInterval);
-
-    EventBus.$on('reload-carriers', () => this.loadData().then(noop));
-
     this.map = L.map('map', {
       center: [49.4683841, 8.4823945],
       zoom: 18,
@@ -161,6 +161,14 @@ export default class AALoadHotspot extends Vue {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(this.map);
+
+    this.resetPeriod('start', false);
+    this.resetPeriod('end', false);
+    this.loadData().then(noop);
+
+    this.$once('hook:beforeDestroy', this.stopInterval);
+
+    EventBus.$on('reload-carriers', () => this.loadData().then(noop));
   }
 
   public updatePoints(): void {
@@ -208,9 +216,9 @@ export default class AALoadHotspot extends Vue {
     this.loadData().then(noop);
   }
 
-  public resetPeriod(period: 'start' | 'end'): void {
+  public resetPeriod(period: 'start' | 'end', reload = true): void {
     this.period[period] = null;
-    this.loadData().then(noop);
+    if (reload) this.loadData().then(noop);
   }
 
   public async loadData(): Promise<void> {
@@ -221,22 +229,13 @@ export default class AALoadHotspot extends Vue {
     if (start) options.start = new Date(start).getTime();
     if (end) options.end = new Date(end).getTime();
 
-    const { data } = await backend.post<Load[]>('hotspot/idle', options);
+    const { data } = await backend.post<Load[]>('hotspot/load', options);
     const timestamps = data.map((x) => x.dataTuples.map((d) => d[0])).flat();
 
     this.start = Math.min(...timestamps);
     this.end = Math.max(...timestamps);
     this.timestamp = this.start;
     this.carriers = data;
-
-    // this.carriers.forEach(({ carrierId, dataTuples }) => {
-    //   const record = dataTuples
-    //     .map(([timestamp]) => timestamp)
-    //     .sort((a, b) => a - b)
-    //     .map((x) => date(x));
-    //   // .filter((timestamp) => timestamp < this.timestamp);
-    //   console.log(getCounter(carrierId), record);
-    // });
 
     // this.startInterval();
   }
@@ -253,14 +252,36 @@ export default class AALoadHotspot extends Vue {
     grid-gap: 10px;
 
     margin-top: -10px;
-    margin-bottom: 10px;
     border-bottom: 1px solid rgba(var(--vm-border), 1);
     padding-bottom: 10px;
   }
 
+  .playback {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 10px;
+
+    background: rgba(var(--vm-background), 1);
+    padding: 10px 5px;
+    border-bottom: 1px solid rgba(var(--vm-border), 1);
+
+    .bar {
+      height: 1.5em;
+      width: 2px;
+      border-radius: 2px;
+      background: rgba(var(--vm-border), 1);
+    }
+
+    .vm-slider {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+
   #map {
     height: 500px;
-    border-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+    border-bottom-left-radius: $border-radius;
     z-index: 0;
     overflow: hidden;
     background: rgba(var(--vm-container), 1);
