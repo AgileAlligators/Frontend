@@ -148,6 +148,7 @@ export default class AAIdleChart extends Vue {
         90vw - env(safe-area-inset-left) - env(safe-area-inset-right) - #{$sidebar-width}
       );
     }
+    max-width: $max-width;
     overflow: auto;
   }
 }

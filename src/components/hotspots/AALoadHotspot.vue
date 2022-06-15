@@ -4,7 +4,12 @@
     title="Beladungsentwicklung"
     :subtitle="$date(timestamp) + ' Uhr'"
   >
-    <vm-flow slot="title" :key="interval || 'a'">
+    <vm-flow
+      slot="title"
+      :key="interval || 'a'"
+      horizontal="end"
+      :style="{ flexWrap: 'wrap-reverse' }"
+    >
       <AAIconButton
         v-if="!interval"
         @click="startInterval()"
@@ -24,29 +29,11 @@
           slot="trigger"
         />
         <vm-action-item
-          title="Sehr langsam"
-          :color="updateInterval === 1300 && 'primary'"
-          @click="setUpdateInterval(1300)"
-        />
-        <vm-action-item
-          title="Langsam"
-          :color="updateInterval === 1000 && 'primary'"
-          @click="setUpdateInterval(1000)"
-        />
-        <vm-action-item
-          title="Normal"
-          :color="updateInterval === 700 && 'primary'"
-          @click="setUpdateInterval(700)"
-        />
-        <vm-action-item
-          title="Schnell"
-          :color="updateInterval === 400 && 'primary'"
-          @click="setUpdateInterval(400)"
-        />
-        <vm-action-item
-          title="Sehr schnell"
-          :color="updateInterval === 100 && 'primary'"
-          @click="setUpdateInterval(100)"
+          v-for="(interval, title) in intervals"
+          :key="interval"
+          :title="title"
+          :color="updateInterval === interval && 'primary'"
+          @click="setUpdateInterval(interval)"
         />
       </vm-action>
       <AAIconButton
@@ -111,6 +98,14 @@ export default class AALoadHotspot extends Vue {
   public step = 300000; // 5 Minuten
   public progress = 0;
   public updateInterval = 500;
+
+  public intervals = {
+    'Sehr langsam': 1300,
+    Langsam: 1000,
+    Normal: 700,
+    Schnell: 400,
+    'Sehr schnell': 100,
+  };
 
   public carriers: Load[] = [];
 

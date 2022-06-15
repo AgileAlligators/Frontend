@@ -142,6 +142,7 @@ export default class AALoadChart extends Vue {
         90vw - env(safe-area-inset-left) - env(safe-area-inset-right) - #{$sidebar-width}
       );
     }
+    max-width: $max-width;
     overflow: auto;
   }
 }
