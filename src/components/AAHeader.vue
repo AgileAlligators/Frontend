@@ -1,27 +1,35 @@
 <template>
   <vm-navbar class="aa-header" breakpoint="1000px">
-    <template
-      :is="mobile ? 'vm-flow' : 'template'"
-      :slot="mobile ? 'default' : 'static'"
-      :class="{ options: mobile }"
-    >
-      <vm-flow v-if="$store.getters.desktop">
-        <AAIconButton
-          :key="$store.getters.dark"
-          :icon="$store.getters.dark ? 'sun' : 'moon'"
-          v-title="
-            'Darkmode ' + ($store.getters.dark ? 'de' : '') + 'aktivieren'
-          "
-          @click="$store.commit('toggleDark')"
-        />
-      </vm-flow>
-    </template>
+    <vm-flow slot="static" v-if="!mobile">
+      <AAIconButton
+        :key="$store.getters.dark"
+        :icon="$store.getters.dark ? 'sun' : 'moon'"
+        v-title="'Darkmode ' + ($store.getters.dark ? 'de' : '') + 'aktivieren'"
+        @click="$store.commit('toggleDark')"
+      />
+    </vm-flow>
 
     <template v-if="mobile">
       <vm-flow slot="title">
         <router-link class="home" :to="{ name: 'home' }"> Track+ </router-link>
         <div class="title">{{ title }}</div>
       </vm-flow>
+
+      <div>
+        <vm-list-item
+          title="Darkmode"
+          @click="$store.commit('toggleDark')"
+          :key="$store.getters.dark"
+        >
+          <vm-switch
+            slot="action"
+            :value="$store.getters.dark"
+            @input="
+              $event !== $store.getters.dark && $store.commit('toggleDark')
+            "
+          />
+        </vm-list-item>
+      </div>
 
       <template v-if="$store.getters.user">
         <vm-navbar-item routeName="account" title="Account" />
@@ -73,6 +81,7 @@ export default class AAHeader extends Vue {
     font-weight: 500;
     border: 1px solid currentColor;
     color: rgba(var(--vm-color-secondary), 1);
+    text-decoration: none;
   }
 
   .title {
@@ -107,15 +116,6 @@ export default class AAHeader extends Vue {
 
   .vm-flow.options {
     margin-bottom: 5px;
-  }
-
-  .aa-icon-button.mobile-search {
-    display: flex;
-    flex: 1 1 0px;
-    background: rgba(var(--vm-paragraph), 1);
-  }
-  .icon-title {
-    padding: 0px 10px 0px 10px;
   }
 }
 </style>
