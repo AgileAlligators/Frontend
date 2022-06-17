@@ -1,8 +1,8 @@
 <template>
   <AAChartWrapper
-    class="aa-load-chart"
-    title="Beladung"
-    endpoint="diagram/load"
+    class="aa-vibration-chart"
+    title="Erschütterungen"
+    endpoint="diagram/vibration"
     chartType="line"
     :chartOptions="options"
   />
@@ -13,7 +13,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import AAChartWrapper from './AAChartWrapper.vue';
 
 @Component({ components: { AAChartWrapper } })
-export default class AALoadChart extends Vue {
+export default class AAVibrationChart extends Vue {
   get options(): unknown {
     return {
       chart: {
@@ -32,7 +32,7 @@ export default class AALoadChart extends Vue {
         min: 0,
         max: 100,
         tickAmount: 5,
-        labels: { formatter: (value: number) => value + '%' },
+        labels: { formatter: (value: number) => value },
       },
       xaxis: {
         type: 'datetime',

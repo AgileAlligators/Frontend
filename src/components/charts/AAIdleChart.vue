@@ -3,20 +3,18 @@
     class="aa-idle-chart"
     title="Standzeiten"
     endpoint="diagram/idle"
-    chartType="bar"
+    chartType="line"
     :chartOptions="options"
-    :mapFunction="mapFunction"
   />
 </template>
 
 <script lang="ts">
+import { time } from '@/utils/functions';
 import { Vue, Component } from 'vue-property-decorator';
 import AAChartWrapper from './AAChartWrapper.vue';
 
 @Component({ components: { AAChartWrapper } })
 export default class AAIdleChart extends Vue {
-  public mapFunction = (y: number): number => Math.round(y * 10000) / 100;
-
   get options(): unknown {
     return {
       chart: {
@@ -32,10 +30,8 @@ export default class AAIdleChart extends Vue {
         },
       },
       yaxis: {
-        min: 0,
-        max: 100,
-        tickAmount: 5,
-        labels: { formatter: (value: number) => value + '%' },
+        tickAmount: 12,
+        labels: { formatter: (value: number) => time(value / 60) },
       },
       xaxis: {
         type: 'datetime',

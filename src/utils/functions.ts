@@ -47,7 +47,7 @@ export function convertId(mongoId: string): number[] {
 }
 
 export function getCounter(mongoId: string): string {
-  return ('00000' + (convertId(mongoId)[2] - 18838)).slice(-3);
+  return ('00000000' + (convertId(mongoId)[2] - 4803)).slice(-3);
 }
 
 export function strippedFilter(): Record<string, string[]> {
@@ -74,6 +74,16 @@ export function date(timestamp: number): string {
   } catch (error) {
     return dtf.format(Date.now());
   }
+}
+
+export function time(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  const x = [];
+  if (hours > 0) x.push(hours, hours === 1 ? 'Stunde' : 'Stunden');
+  if (mins > 0) x.push(mins, mins === 1 ? 'Minute' : 'Minuten');
+
+  return x.join(' ');
 }
 
 export function carrierColor(id: string | number): string {

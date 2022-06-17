@@ -63,7 +63,7 @@ import { backend } from '@/utils/backend';
 import { EventBus } from '@/utils/constants';
 import { strippedFilter } from '@/utils/functions';
 import { Carrier } from '@/utils/interfaces';
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
 import AAIconButton from './AAIconButton.vue';
 import AASection from './AASection.vue';
 
@@ -77,7 +77,6 @@ export default class AACarrierTable extends Vue {
   public carriers: Carrier[] = [];
 
   mounted(): void {
-    this.loadCarriers();
     EventBus.$on('reload-carriers', this.loadCarriers);
   }
 
@@ -108,7 +107,7 @@ export default class AACarrierTable extends Vue {
     if (this.page <= 1) return;
     this.$router.push({ query: { page: `${this.page - 1}` } });
   }
-
+  @Watch('$route', { deep: true, immediate: true })
   public loadCarriers(): void {
     const filter = strippedFilter();
     delete filter.ids;
@@ -132,10 +131,9 @@ export default class AACarrierTable extends Vue {
 
   public headers = {
     id: '#ID',
-    type: 'LT Art',
+    type: 'Bauteil',
     customer: 'Kunde',
     order: 'Bestellung',
-    component: 'Bauteil',
   };
 
   get items(): Carrier[] {

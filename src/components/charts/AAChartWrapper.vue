@@ -53,7 +53,6 @@ import AAFormInput from '../forms/elements/AAFormInput.vue';
 export default class AAChartWrapper extends Vue {
   @Prop({ required: true }) title!: string;
   @Prop({ required: true }) endpoint!: string;
-  @Prop({ required: true }) mapFunction!: (x: number) => string | number;
   @Prop({ required: true }) chartOptions!: any;
   @Prop({ required: true }) chartType!: string;
 
@@ -92,9 +91,7 @@ export default class AAChartWrapper extends Vue {
     ).map(({ name, data }) => {
       return {
         name: name.length === 24 ? getCounter(name) : name,
-        data: data.map(({ x, y }) => {
-          return { x: x, y: this.mapFunction(y) };
-        }),
+        data,
       };
     });
 

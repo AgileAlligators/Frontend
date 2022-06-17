@@ -21,7 +21,6 @@ const states = {
     types: [] as string[],
     customers: [] as string[],
     orders: [] as string[],
-    components: [] as string[],
   },
   selection: {} as Record<string, boolean>,
 };
@@ -101,9 +100,6 @@ export default new Vuex.Store({
     },
     filter_orders(state: typeof states, orders: string[] | null) {
       state.filter.orders = orders || [];
-    },
-    filter_components(state: typeof states, components: string[] | null) {
-      state.filter.components = components || [];
     },
   },
 });

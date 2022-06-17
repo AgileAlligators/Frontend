@@ -3,6 +3,7 @@ import aiChevronLeft from './aiChevronLeft.vue';
 import aiChevronRight from './aiChevronRight.vue';
 import aiCopy from './aiCopy.vue';
 import aiDotsH from './aiDotsH.vue';
+import aiDownload from './aiDownload.vue';
 import aiFilter from './aiFilter.vue';
 import aiLens from './aiLens.vue';
 import aiMoon from './aiMoon.vue';
@@ -22,6 +23,7 @@ export const AlligatorIconsEtc: PluginFunction<unknown> =
     Vue.component('ai-plus', aiPlus);
     Vue.component('ai-dots-h', aiDotsH);
     Vue.component('ai-remove', aiRemove);
+    Vue.component('ai-download', aiDownload);
     Vue.component('ai-sun', aiSun);
     Vue.component('ai-moon', aiMoon);
     Vue.component('ai-filter', aiFilter);

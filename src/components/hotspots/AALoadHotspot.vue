@@ -59,9 +59,9 @@
           />
         </vm-action>
         <AAIconButton
-          @click="printPlugin.printMap('CurrentSize', 'Hotspots')"
+          @click="printPlugin.printMap('CurrentSize', 'Beladungsentwicklung')"
           v-title="'Bild herunterladen'"
-          icon="plus"
+          icon="download"
         />
         <div class="bar" />
       </vm-flow>
@@ -84,13 +84,12 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import L, { LayerGroup, Map } from 'leaflet';
+import L, { LayerGroup, Map, Control } from 'leaflet';
 import AASection from '../AASection.vue';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-easyprint';
 import AAIconButton from '../AAIconButton.vue';
 import AAFormInput from '../forms/elements/AAFormInput.vue';
-import { backend } from '@/utils/backend';
 import { noop } from 'vue-class-component/lib/util';
 import {
   carrierColor,
@@ -109,7 +108,7 @@ interface Load {
 @Component({ components: { AASection, AAIconButton, AAFormInput } })
 export default class AALoadHotspot extends Vue {
   public map: Map | null = null;
-  public printPlugin: any = null;
+  public printPlugin: Control | null = null;
   public layer: LayerGroup | null = null;
 
   public period = { start: null as null | number, end: null as null | number };
@@ -165,6 +164,7 @@ export default class AALoadHotspot extends Vue {
       fadeAnimation: false,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.printPlugin = (L as any)
       .easyPrint({
         hidden: true,
@@ -244,13 +244,13 @@ export default class AALoadHotspot extends Vue {
     if (start) options.start = new Date(start).getTime();
     if (end) options.end = new Date(end).getTime();
 
-    const { data } = await backend.post<Load[]>('hotspot/load', options);
-    const timestamps = data.map((x) => x.dataTuples.map((d) => d[0])).flat();
+    // const { data } = await backend.post<Load[]>('hotspot/load', options);
+    // const timestamps = data.map((x) => x.dataTuples.map((d) => d[0])).flat();
 
-    this.start = Math.min(...timestamps);
-    this.end = Math.max(...timestamps);
-    this.timestamp = this.start;
-    this.carriers = data;
+    // this.start = Math.min(...timestamps);
+    // this.end = Math.max(...timestamps);
+    // this.timestamp = this.start;
+    // this.carriers = data;
 
     // this.startInterval();
   }
@@ -285,6 +285,7 @@ export default class AALoadHotspot extends Vue {
       width: 2px;
       border-radius: 2px;
       background: rgba(var(--vm-border), 1);
+      margin-left: 7.5px;
     }
 
     .vm-slider {
