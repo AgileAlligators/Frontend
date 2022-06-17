@@ -82,6 +82,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import L, { LayerGroup, Map } from 'leaflet';
 import AASection from '../AASection.vue';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-easyprint';
 import AAIconButton from '../AAIconButton.vue';
 import AAFormInput from '../forms/elements/AAFormInput.vue';
 import { backend } from '@/utils/backend';
@@ -169,6 +170,16 @@ export default class AALoadHotspot extends Vue {
     this.$once('hook:beforeDestroy', this.stopInterval);
 
     EventBus.$on('reload-carriers', () => this.loadData().then(noop));
+
+    (L as any)
+      .easyPrint({
+        title: 'Print',
+        position: 'topleft',
+        sizeModes: ['Current', 'A4Portrait', 'A4Landscape'],
+        exportOnly: true,
+        filename: 'Hotspots',
+      })
+      .addTo(this.map);
   }
 
   public updatePoints(): void {
