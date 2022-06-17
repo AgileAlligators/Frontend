@@ -58,6 +58,11 @@
             @click="setUpdateInterval(interval)"
           />
         </vm-action>
+        <AAIconButton
+          @click="printPlugin.printMap('CurrentSize', 'Hotspots')"
+          v-title="'Bild herunterladen'"
+          icon="plus"
+        />
         <div class="bar" />
       </vm-flow>
 
@@ -104,6 +109,7 @@ interface Load {
 @Component({ components: { AASection, AAIconButton, AAFormInput } })
 export default class AALoadHotspot extends Vue {
   public map: Map | null = null;
+  public printPlugin: any = null;
   public layer: LayerGroup | null = null;
 
   public period = { start: null as null | number, end: null as null | number };
@@ -159,6 +165,14 @@ export default class AALoadHotspot extends Vue {
       fadeAnimation: false,
     });
 
+    this.printPlugin = (L as any)
+      .easyPrint({
+        hidden: true,
+        sizeModes: ['CurrentSize'],
+        exportOnly: true,
+      })
+      .addTo(this.map);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(this.map);
@@ -170,16 +184,6 @@ export default class AALoadHotspot extends Vue {
     this.$once('hook:beforeDestroy', this.stopInterval);
 
     EventBus.$on('reload-carriers', () => this.loadData().then(noop));
-
-    (L as any)
-      .easyPrint({
-        title: 'Print',
-        position: 'topleft',
-        sizeModes: ['Current', 'A4Portrait', 'A4Landscape'],
-        exportOnly: true,
-        filename: 'Hotspots',
-      })
-      .addTo(this.map);
   }
 
   public updatePoints(): void {
