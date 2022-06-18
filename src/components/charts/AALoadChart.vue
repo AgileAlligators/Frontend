@@ -2,7 +2,7 @@
   <AAChartWrapper
     class="aa-load-chart"
     title="Beladung"
-    endpoint="diagram/load"
+    endpoint="load/diagram"
     chartType="line"
     :chartOptions="options"
   />

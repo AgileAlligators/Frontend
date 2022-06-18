@@ -2,7 +2,7 @@
   <AAChartWrapper
     class="aa-vibration-chart"
     title="Erschütterungen"
-    endpoint="diagram/vibration"
+    endpoint="vibration/diagram"
     chartType="line"
     :chartOptions="options"
   />

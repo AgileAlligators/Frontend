@@ -2,7 +2,7 @@
   <AAChartWrapper
     class="aa-idle-chart"
     title="Standzeiten"
-    endpoint="diagram/idle"
+    endpoint="location/idle/diagram"
     chartType="line"
     :chartOptions="options"
   />
