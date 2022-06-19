@@ -78,11 +78,10 @@ export function date(timestamp: number): string {
 
 export function time(minutes: number): string {
   const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  const x = [];
-  if (hours > 0) x.push(hours, hours === 1 ? 'Stunde' : 'Stunden');
-  if (mins > 0) x.push(mins, mins === 1 ? 'Minute' : 'Minuten');
-
+  const mins = Math.floor(minutes % 60);
+  let x: (string | number)[] = [];
+  if (mins > 0) x = [mins, mins === 1 ? 'Minute' : 'Minuten', ...x];
+  if (hours > 0) x = [hours, hours === 1 ? 'Stunde' : 'Stunden', ...x];
   return x.join(' ');
 }
 

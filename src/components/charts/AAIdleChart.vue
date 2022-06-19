@@ -30,8 +30,7 @@ export default class AAIdleChart extends Vue {
         },
       },
       yaxis: {
-        tickAmount: 12,
-        labels: { formatter: (value: number) => time(value / 60) },
+        labels: { formatter: (value: number) => time(value) },
       },
       xaxis: {
         type: 'datetime',
