@@ -25,7 +25,7 @@ export default class AAIdleChart extends Vue {
         stacked: false,
         zoom: {
           type: 'x',
-          enabled: true,
+          enabled: false,
           autoScaleYaxis: true,
         },
       },

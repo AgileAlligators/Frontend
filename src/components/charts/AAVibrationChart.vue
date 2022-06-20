@@ -24,15 +24,17 @@ export default class AAVibrationChart extends Vue {
         stacked: false,
         zoom: {
           type: 'x',
-          enabled: true,
+          enabled: false,
           autoScaleYaxis: true,
         },
       },
       yaxis: {
         min: 0,
-        max: 100,
-        tickAmount: 5,
-        labels: { formatter: (value: number) => value },
+        max: 1,
+        tickAmount: 10,
+        labels: {
+          formatter: (value: number) => Math.round(value * 100) / 100,
+        },
       },
       xaxis: {
         type: 'datetime',

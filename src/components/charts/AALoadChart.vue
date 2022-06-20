@@ -24,7 +24,7 @@ export default class AALoadChart extends Vue {
         stacked: false,
         zoom: {
           type: 'x',
-          enabled: true,
+          enabled: false,
           autoScaleYaxis: true,
         },
       },

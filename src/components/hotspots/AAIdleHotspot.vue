@@ -1,8 +1,8 @@
 <template>
   <AAHotspotWrapper
-    class="aa-load-hotspot"
-    title="Beladungsentwicklung"
-    endpoint="load/hotspot"
+    class="aa-idle-hotspot"
+    title="Standzeitentwicklung"
+    endpoint="location/idle/hotspot"
   />
 </template>
 
@@ -11,5 +11,5 @@ import { Vue, Component } from 'vue-property-decorator';
 import AAHotspotWrapper from './AAHotspotWrapper.vue';
 
 @Component({ components: { AAHotspotWrapper } })
-export default class AALoadHotspot extends Vue {}
+export default class AAIdleHotspot extends Vue {}
 </script>
