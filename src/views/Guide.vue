@@ -6,7 +6,7 @@
         gefiltert werden. Hierzu klick man auf das Filtersymbol, welches über
         der Liste von Ladungträgern zu finden ist.
       </p>
-      <img src="../../public/assets/guide/FilterIcon.png" />
+      <vm-image src="assets/guide/FilterIcon.png" />
       <p>
         Daraufhin öffnet sich ein Fenster, dass die aktuellen Einstellung des
         Filters darstellt. Soll ein Filter hinzugefügt werden, kann man auf eine
@@ -18,7 +18,7 @@
         sind alle möglichen Bauteiloptionen ausgewählt und deshalb werden alle
         vorhanden Ladungsräger, unabhängig vom Bauteil dargestellt.
       </p>
-      <img src="../../public/assets/guide/FilterOverlay.png" />
+      <vm-image src="assets/guide/FilterOverlay.png" />
     </AASection>
     <AASection title="Ladungsträger auswählen">
       <p>
@@ -35,14 +35,14 @@
         verschiedenen Ladungsträger berechnet. Im folgenden Beispiel wurden drei
         Ladungsträger ausgewählt.
       </p>
-      <img src="../../public/assets/guide/CarrierSelection.png" />
+      <vm-image src="assets/guide/CarrierSelection.png" />
       <p>Das entsprechende Beladungdiagramm sieht wie folgt aus.</p>
-      <img src="../../public/assets/guide/LoadDiagram.png" />
+      <vm-image src="assets/guide/LoadDiagram.png" />
       <p>
         Zusätzlich kann die angezeigt Zeitspanne angepasst werden. Im folgenden
         Beispiel wurde der Zeitraum auf 22.06.22 - 26.06.22 eingeschränkt.
       </p>
-      <img src="../../public/assets/guide/LimitedLoadDiagram.png" />
+      <vm-image src="assets/guide/LimitedLoadDiagram.png" />
       <p>
         Analog zu der Diagrammansicht, findet man unter dem Reiter "Hotspots"
         Hotspots-Diagramme, die sich auf die ausgewählten Ladungsträger
@@ -50,7 +50,7 @@
         Ladungsträger wie Bewegungsmuster, Standzeitentwicklung,
         Beladungsentwicklung und Vibrationen.
       </p>
-      <img src="../../public/assets/guide/CarrierMovement.png" />
+      <vm-image src="assets/guide/CarrierMovement.png" />
       <p>
         Wählt man hier einen Zeitraum aus und klickt auf das Startsymbol, so
         werden die Bewegungen der Ladungsträger visuell abgespielt.
@@ -70,6 +70,10 @@ export default class Guide extends Vue {}
 
 <style lang="scss" scoped>
 .view-guide {
-  //
+  img {
+    margin: 10px 0;
+    width: 100%;
+    max-width: 500px;
+  }
 }
 </style>
