@@ -78,7 +78,17 @@
       />
     </div>
 
-    <div ref="map" id="map" />
+    <div class="map-container">
+      <div class="map-wrapper">
+        <div ref="map" id="map" />
+      </div>
+      <transition name="loading">
+        <div class="loading" v-if="loading">
+          <vm-spinner color="#fff" />
+          <p>Daten werden geladen</p>
+        </div>
+      </transition>
+    </div>
   </AASection>
 </template>
 
@@ -124,6 +134,8 @@ export default class AAHotspotWrapper extends Vue {
   public progress = 0;
   public updateInterval = 500;
   public zoomSet = false;
+
+  public loading = false;
 
   public intervals = {
     'Sehr langsam': 1300,
@@ -243,6 +255,7 @@ export default class AAHotspotWrapper extends Vue {
   }
 
   public async loadData(): Promise<void> {
+    this.loading = true;
     this.stopInterval();
     const options: Record<string, string[] | number> = strippedFilter();
 
@@ -257,6 +270,8 @@ export default class AAHotspotWrapper extends Vue {
     this.end = Math.max(...timestamps);
     this.timestamp = this.start;
     this.carriers = data;
+
+    this.loading = false;
 
     // this.startInterval();
   }
@@ -300,13 +315,53 @@ export default class AAHotspotWrapper extends Vue {
     }
   }
 
-  #map {
-    height: 500px;
+  .map-container {
     border-bottom-right-radius: $border-radius;
     border-bottom-left-radius: $border-radius;
     z-index: 0;
     overflow: hidden;
     background: rgba(var(--vm-container), 1);
+
+    #map {
+      height: 500px;
+      z-index: 0;
+    }
+
+    height: 500px;
+
+    position: relative;
+    .loading {
+      z-index: 20;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      text-align: center;
+      padding: 20px;
+      background: rgba(#000, 0.4);
+      backdrop-filter: saturate(180%) blur(20px);
+      color: #fff;
+      p {
+        font-weight: 500;
+        font-size: 1.1em;
+      }
+    }
+  }
+
+  .loading-enter,
+  .loading-leave-to {
+    opacity: 0;
+    backdrop-filter: saturate(0%) blur(0px);
+    background: rgba(#000, 0);
+  }
+  .loading-enter-active,
+  .loading-leave-active {
+    transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
   }
 }
 </style>

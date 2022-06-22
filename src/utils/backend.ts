@@ -21,7 +21,11 @@ backend.interceptors.request.use((config) => {
 backend.interceptors.response.use(
   (config) => config,
   (error) => {
-    return Promise.reject(error.response.data);
+    if (error.response) {
+      error = error.response;
+      if (error.data) error = error.data;
+    }
+    return Promise.reject(error);
   }
 );
 
