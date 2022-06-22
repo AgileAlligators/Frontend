@@ -4,7 +4,7 @@ const backendUrl = 'https://agilealligators.timos.design/api/';
 // const backendUrl = 'http://localhost:3000/api/';
 
 const backend = axios.create({
-  timeout: 10000,
+  timeout: 30000,
   baseURL: backendUrl,
 });
 

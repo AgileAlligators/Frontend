@@ -105,3 +105,13 @@ export function carrierColor(id: string | number): string {
 export function toPercent(val: number): number {
   return Math.round(val * 10000) / 100;
 }
+
+export function scale(
+  input: number,
+  inMin: number,
+  inMax: number,
+  outMin: number,
+  outMax: number
+): number {
+  return ((input - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}

@@ -1,3 +1,4 @@
+import 'ol/ol.css';
 import Vue from 'vue';
 import VueApexCharts from 'vue-apexcharts';
 import vTitle from 'vuejs-title';

@@ -59,7 +59,7 @@
           />
         </vm-action>
         <AAIconButton
-          @click="printPlugin.printMap('CurrentSize', title)"
+          @click="exportAsPNG"
           v-title="'Bild herunterladen'"
           icon="download"
         />
@@ -82,6 +82,7 @@
       <div class="map-wrapper">
         <div ref="map" id="map" />
       </div>
+      <div ref="info" id="info" class="hidden" />
       <transition name="loading">
         <div class="loading" v-if="loading">
           <vm-spinner color="#fff" />
@@ -95,9 +96,9 @@
 <script lang="ts">
 import { backend } from '@/utils/backend';
 import {
-  carrierColor,
   date,
   getCounter,
+  scale,
   strippedFilter,
   toPercent,
 } from '@/utils/functions';
@@ -106,14 +107,23 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 import AAIconButton from '../AAIconButton.vue';
 import AASection from '../AASection.vue';
 import AAFormInput from '../forms/elements/AAFormInput.vue';
-import L, { LayerGroup, Map, Control } from 'leaflet';
 import { EventBus } from '@/utils/constants';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-easyprint';
 
+import View from 'ol/View';
+import Map from 'ol/Map';
+import { Heatmap as HeatmapLayer, Tile as TileLayer } from 'ol/layer';
+import VectorSource from 'ol/source/Vector';
+import OSM from 'ol/source/OSM';
+import { fromLonLat } from 'ol/proj';
+import Point from 'ol/geom/Point';
+import Feature from 'ol/Feature';
+import MapBrowserEvent from 'ol/MapBrowserEvent';
+import { Pixel } from 'ol/pixel';
+
+type DataTuple = [number, [number, number], number];
 interface Hotspot {
   _id: string;
-  dataTuples: [number, [number, number], number][];
+  dataTuples: DataTuple[];
 }
 
 @Component({ components: { AASection, AAIconButton, AAFormInput } })
@@ -121,9 +131,18 @@ export default class AAHotspotWrapper extends Vue {
   @Prop({ required: true }) title!: string;
   @Prop({ required: true }) endpoint!: string;
 
-  public map: Map | null = null;
-  public printPlugin: Control | null = null;
-  public layer: LayerGroup | null = null;
+  $refs!: {
+    map: HTMLDivElement;
+    info: HTMLDivElement;
+  };
+
+  public heat = new HeatmapLayer({
+    blur: 20,
+    radius: 12,
+    source: new VectorSource({ features: [] }),
+    weight: (feature) => scale(feature.get('opacity'), 0, 1, 0.1, 1),
+  });
+  public map = new Map({});
 
   public period = { start: null as null | number, end: null as null | number };
   public start = 0;
@@ -133,7 +152,6 @@ export default class AAHotspotWrapper extends Vue {
   public step = 300000; // 5 Minuten
   public progress = 0;
   public updateInterval = 500;
-  public zoomSet = false;
 
   public loading = false;
 
@@ -147,10 +165,35 @@ export default class AAHotspotWrapper extends Vue {
 
   public carriers: Hotspot[] = [];
 
+  mounted(): void {
+    this.map = new Map({
+      target: this.$refs.map,
+      layers: [new TileLayer({ source: new OSM() }), this.heat],
+      view: new View({
+        center: fromLonLat([8.4823945, 49.4683841]),
+        zoom: 17,
+        constrainResolution: true,
+      }),
+    });
+    this.map.on('pointermove', (e: MapBrowserEvent<PointerEvent>) => {
+      if (e.dragging) this.$refs.info.classList.add('hidden');
+      else this.displayFeatureInfo(e.pixel);
+    });
+    this.map.on('click', (e: MapBrowserEvent<PointerEvent>) => {
+      this.displayFeatureInfo(e.pixel);
+    });
+
+    this.resetPeriod('start', false);
+    this.resetPeriod('end', false);
+    this.loadData().then(noop);
+
+    this.$once('hook:beforeDestroy', this.stopInterval);
+
+    EventBus.$on('reload-carriers', () => this.loadData().then(noop));
+  }
+
   public startInterval(): void {
     this.stopInterval();
-
-    this.zoomSet = false;
     this.interval = setInterval(() => {
       const { end, start, timestamp } = this;
       if (timestamp > end) this.timestamp = start;
@@ -171,76 +214,47 @@ export default class AAHotspotWrapper extends Vue {
     this.startInterval();
   }
 
-  mounted(): void {
-    this.map = L.map(this.$refs.map as HTMLElement, {
-      center: [49.4683841, 8.4823945],
-      zoom: 18,
-      attributionControl: false,
-      zoomControl: false,
-      fadeAnimation: false,
+  public displayFeatureInfo(pixel: Pixel): void {
+    const { info } = this.$refs;
+    info.style.left = pixel[0] + 'px';
+    info.style.top = pixel[1] + 'px';
+
+    const feature = this.map.forEachFeatureAtPixel(pixel, function (feature) {
+      return feature;
     });
+    if (feature) {
+      info.innerHTML = feature.get('tooltip');
+      info.classList.remove('hidden');
+    } else info.classList.add('hidden');
+  }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.printPlugin = (L as any)
-      .easyPrint({
-        hidden: true,
-        sizeModes: ['CurrentSize'],
-        exportOnly: true,
-      })
-      .addTo(this.map);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-    }).addTo(this.map);
-
-    this.resetPeriod('start', false);
-    this.resetPeriod('end', false);
-    this.loadData().then(noop);
-
-    this.$once('hook:beforeDestroy', this.stopInterval);
-
-    EventBus.$on('reload-carriers', () => this.loadData().then(noop));
+  private getClosest(dataTuples: DataTuple[]): DataTuple {
+    return dataTuples.reduce((prev, curr) =>
+      Math.abs(curr[0] - this.timestamp) < Math.abs(prev[0] - this.timestamp)
+        ? curr
+        : prev
+    );
   }
 
   public updatePoints(): void {
-    if (!this.map) return;
-    if (this.layer) this.layer.removeFrom(this.map);
-
-    this.layer = L.layerGroup();
-
     this.carriers.forEach(({ _id, dataTuples }) => {
-      const record = dataTuples
-        .sort((a, b) => a[0] - b[0])
-        .filter(([timestamp]) => timestamp < this.timestamp)
-        .reverse()[0];
+      const record = this.getClosest(dataTuples);
+      const feature = this.heat.getSource()?.getFeatureById(_id);
 
-      if (record) {
-        // console.log(date(record[0]));
-        const [timestamp, coords, load] = record;
-
+      if (feature) {
+        const [timestamp, coords, data] = record;
         const id = getCounter(_id);
-        const perc = toPercent(load);
+        const perc = toPercent(data);
         const ts = date(timestamp);
         const tooltip = `#${id} | ${perc}% am ${ts} Uhr`;
 
-        if (this.layer)
-          L.circle(coords, {
-            radius: 10,
-            fillOpacity: load,
-            weight: 0,
-            color: carrierColor(_id),
-          })
-            .bindTooltip(tooltip, {})
-            .addTo(this.layer);
+        const geometry = new Point(fromLonLat(coords));
+        const opacity = data;
 
-        if (this.map && !this.zoomSet) {
-          this.map.setView(coords, 18);
-          this.zoomSet = true;
-        }
+        feature.setGeometry(geometry);
+        feature.setProperties({ tooltip, opacity });
       }
     });
-
-    this.layer.addTo(this.map);
   }
 
   public updatePeriod(period: 'start' | 'end', to: string): void {
@@ -255,6 +269,8 @@ export default class AAHotspotWrapper extends Vue {
   }
 
   public async loadData(): Promise<void> {
+    // if (Math.pow(1, 1) === 1) return;
+
     this.loading = true;
     this.stopInterval();
     const options: Record<string, string[] | number> = strippedFilter();
@@ -271,12 +287,105 @@ export default class AAHotspotWrapper extends Vue {
     this.timestamp = this.start;
     this.carriers = data;
 
+    this.heat.getSource()?.addFeatures(
+      data.map(({ _id }) => {
+        const feature = new Feature({ opacity: 0 });
+        feature.setId(_id);
+        return feature;
+      })
+    );
+
+    const center = data.filter(({ dataTuples }) =>
+      dataTuples.filter(([timestamp]) => timestamp === this.start)
+    )[0].dataTuples[0][1];
+
+    this.map.getView().setCenter(fromLonLat(center.reverse()));
+
     this.loading = false;
 
     // this.startInterval();
   }
+
+  public exportAsPNG(): void {
+    this.map.once('rendercomplete', () => {
+      const mapCanvas = document.createElement('canvas');
+      const size = this.map.getSize();
+      if (!size) return;
+      mapCanvas.width = size[0];
+      mapCanvas.height = size[1];
+      const mapContext = mapCanvas.getContext('2d');
+      if (!mapContext) return;
+
+      Array.prototype.forEach.call(
+        this.map
+          .getViewport()
+          .querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
+        (canvas) => {
+          if (canvas.width > 0) {
+            const opacity =
+              canvas.parentNode.style.opacity || canvas.style.opacity;
+            mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+
+            const backgroundColor = canvas.parentNode.style.backgroundColor;
+            if (backgroundColor) {
+              mapContext.fillStyle = backgroundColor;
+              mapContext.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            let matrix;
+            const transform = canvas.style.transform;
+            if (transform) {
+              matrix = transform
+                .match(/^matrix\(([^(]*)\)$/)[1]
+                .split(',')
+                .map(Number);
+            } else {
+              matrix = [
+                parseFloat(canvas.style.width) / canvas.width,
+                0,
+                0,
+                parseFloat(canvas.style.height) / canvas.height,
+                0,
+                0,
+              ];
+            }
+            // Apply the transform to the export map context
+            CanvasRenderingContext2D.prototype.setTransform.apply(
+              mapContext,
+              matrix
+            );
+            mapContext.drawImage(canvas, 0, 0);
+          }
+        }
+      );
+
+      mapContext.globalAlpha = 1;
+
+      const a = document.createElement('a');
+      a.href = mapCanvas.toDataURL();
+      a.download = this.title;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+    this.map.renderSync();
+  }
 }
 </script>
+
+<style lang="scss">
+.aa-hotspot-wrapper #map .ol-control {
+  background: rgba(127, 127, 127, 0.25);
+  backdrop-filter: saturate(180%) blur(20px);
+  padding: 5px;
+  button {
+    background: rgba(var(--vm-primary), 0.5);
+    cursor: pointer;
+    &:hover {
+      background: rgba(var(--vm-primary), 1);
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .aa-hotspot-wrapper {
@@ -328,6 +437,28 @@ export default class AAHotspotWrapper extends Vue {
     }
 
     height: 500px;
+
+    #info {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      z-index: 10;
+      pointer-events: none;
+
+      white-space: nowrap;
+      font-weight: 500;
+      padding: 2.5px 10px;
+      border-radius: $border-radius;
+      background: rgba(#000, 0.5);
+      backdrop-filter: saturate(180%) blur(20px);
+      color: #fff;
+
+      transition: 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+      transition-property: opacity, transform;
+      &.hidden {
+        transform: translate(-50%, 0%) scale(0);
+        opacity: 0;
+      }
+    }
 
     position: relative;
     .loading {
