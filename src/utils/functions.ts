@@ -80,7 +80,8 @@ export function time(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = Math.floor(minutes % 60);
   let x: (string | number)[] = [];
-  if (mins > 0) x = [mins, mins === 1 ? 'Minute' : 'Minuten', ...x];
+  if (mins > 0 || hours === 0)
+    x = [mins, mins === 1 ? 'Minute' : 'Minuten', ...x];
   if (hours > 0) x = [hours, hours === 1 ? 'Stunde' : 'Stunden', ...x];
   return x.join(' ');
 }
