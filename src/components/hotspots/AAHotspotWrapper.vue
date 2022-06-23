@@ -243,12 +243,15 @@ export default class AAHotspotWrapper extends Vue {
 
       if (feature) {
         const [timestamp, coords, data] = record;
+
         const id = getCounter(_id);
         const perc = toPercent(data);
         const ts = date(timestamp);
         const tooltip = `#${id} | ${perc}% am ${ts} Uhr`;
 
-        const geometry = new Point(fromLonLat(coords));
+        const geometry = new Point(
+          fromLonLat([Math.min(...coords), Math.max(...coords)])
+        );
         const opacity = data;
 
         feature.setGeometry(geometry);
