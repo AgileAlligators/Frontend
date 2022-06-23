@@ -1,4 +1,5 @@
 import 'ol/ol.css';
+import VCalendar from 'v-calendar';
 import Vue from 'vue';
 import VueApexCharts from 'vue-apexcharts';
 import vTitle from 'vuejs-title';
@@ -35,6 +36,8 @@ Vue.use(Vuement, {
     },
   },
 });
+
+Vue.use(VCalendar);
 
 Vue.prototype.$convId = convertId;
 Vue.prototype.$counter = getCounter;

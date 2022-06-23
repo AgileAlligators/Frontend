@@ -1,5 +1,7 @@
 <template>
   <AAView class="view-hotspots">
+    <AATimeRange slot="static" />
+
     <AALocationHotspot />
     <AAIdleHotspot />
     <AALoadHotspot />
@@ -8,6 +10,7 @@
 </template>
 
 <script lang="ts">
+import AATimeRange from '@/components/AATimerange.vue';
 import AAView from '@/components/AAView.vue';
 import AAIdleHotspot from '@/components/hotspots/AAIdleHotspot.vue';
 import AALoadHotspot from '@/components/hotspots/AALoadHotspot.vue';
@@ -18,6 +21,7 @@ import { Vue, Component } from 'vue-property-decorator';
 @Component({
   components: {
     AAView,
+    AATimeRange,
     AALocationHotspot,
     AAIdleHotspot,
     AALoadHotspot,

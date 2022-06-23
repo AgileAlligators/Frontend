@@ -225,4 +225,16 @@ form[dialog] {
     border-right-color: rgba(var(--vm-border), 1) !important;
   }
 }
+
+.vc-container {
+  &,
+  &.vc-is-dark {
+    &,
+    select {
+      color: rgba(var(--vm-color), 1);
+      background-color: rgba(var(--vm-background), 1);
+      border-color: rgba(var(--vm-border), 1);
+    }
+  }
+}
 </style>

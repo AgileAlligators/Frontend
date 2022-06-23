@@ -1,7 +1,7 @@
 <template>
   <div class="view-login">
     <vm-dialog :value="true" :closeable="false">
-      <AADialogHeader title="CMS" about="Login" />
+      <AADialogHeader title="Ligenium Track+" about="Login" />
 
       <vm-revealer>
         <p v-if="error" highlight>

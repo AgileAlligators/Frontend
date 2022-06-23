@@ -50,11 +50,17 @@ export function getCounter(mongoId: string): string {
   return ('00000000' + (convertId(mongoId)[2] - 4803)).slice(-3);
 }
 
-export function strippedFilter(): Record<string, string[]> {
-  const filter: Record<string, string[]> = store.getters.filter;
+export function strippedFilter(): Record<string, string[] | number> {
+  const filter: Record<string, string[] | number> = store.getters.filter;
+  const start: Date | null = store.state.time.start;
+  const end: Date | null = store.state.time.end;
+
+  if (start) filter.start = start.getTime();
+  if (end) filter.end = end.getTime();
+
   const ids: string[] | undefined = store.getters.selection;
   Object.entries(filter).forEach(([key, value]) => {
-    if (value.length === 0) delete filter[key];
+    if (Array.isArray(value) && value.length === 0) delete filter[key];
   });
   if (ids) filter.ids = ids;
   return filter;

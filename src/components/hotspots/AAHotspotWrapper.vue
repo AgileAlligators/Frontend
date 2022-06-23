@@ -4,31 +4,14 @@
     :title="title"
     :subtitle="$date(timestamp) + ' Uhr'"
   >
-    <AAIconButton
-      slot="title"
-      @click="$store.commit('dialog_filter', true)"
-      v-title="'Ladungsträger filtern'"
-      icon="filter"
-    />
-
-    <div class="period-picker">
-      <AAFormInput
-        type="datetime-local"
-        title="Beginn"
-        :value="undefined"
-        :allowDefaultNull="true"
-        @input="updatePeriod('start', $event)"
-        @reset="resetPeriod('start')"
+    <vm-flow slot="title">
+      <vm-spinner size="5px" v-if="cancelSource" />
+      <AAIconButton
+        @click="$store.commit('dialog_filter', true)"
+        v-title="'Ladungsträger filtern'"
+        icon="filter"
       />
-      <AAFormInput
-        type="datetime-local"
-        title="Ende"
-        :value="undefined"
-        :allowDefaultNull="true"
-        @input="updatePeriod('end', $event)"
-        @reset="resetPeriod('end')"
-      />
-    </div>
+    </vm-flow>
 
     <div class="playback">
       <vm-flow :key="interval || 'a'">
@@ -82,13 +65,11 @@
       <div class="map-wrapper">
         <div ref="map" id="map" />
       </div>
-      <div ref="info" id="info" class="hidden" />
-      <transition name="loading">
-        <div class="loading" v-if="loading">
-          <vm-spinner color="#fff" />
-          <p>Daten werden geladen</p>
-        </div>
-      </transition>
+      <div ref="info" id="info" class="hidden">
+        <div ref="cId" />
+        <div ref="val" />
+        <div ref="ts" />
+      </div>
     </div>
   </AASection>
 </template>
@@ -102,7 +83,6 @@ import {
   strippedFilter,
   toPercent,
 } from '@/utils/functions';
-import { noop } from 'vue-class-component/lib/util';
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import AAIconButton from '../AAIconButton.vue';
 import AASection from '../AASection.vue';
@@ -119,6 +99,7 @@ import Point from 'ol/geom/Point';
 import Feature from 'ol/Feature';
 import MapBrowserEvent from 'ol/MapBrowserEvent';
 import { Pixel } from 'ol/pixel';
+import axios, { CancelTokenSource } from 'axios';
 
 type DataTuple = [number, [number, number], number];
 interface Hotspot {
@@ -134,6 +115,9 @@ export default class AAHotspotWrapper extends Vue {
   $refs!: {
     map: HTMLDivElement;
     info: HTMLDivElement;
+    cId: HTMLDivElement;
+    val: HTMLDivElement;
+    ts: HTMLDivElement;
   };
 
   public heat = new HeatmapLayer({
@@ -144,7 +128,6 @@ export default class AAHotspotWrapper extends Vue {
   });
   public map = new Map({});
 
-  public period = { start: null as null | number, end: null as null | number };
   public start = 0;
   public end = Date.now();
   public interval: number | null = null;
@@ -152,8 +135,6 @@ export default class AAHotspotWrapper extends Vue {
   public step = 300000; // 5 Minuten
   public progress = 0;
   public updateInterval = 500;
-
-  public loading = false;
 
   public intervals = {
     'Sehr langsam': 1300,
@@ -164,6 +145,7 @@ export default class AAHotspotWrapper extends Vue {
   };
 
   public carriers: Hotspot[] = [];
+  public cancelSource: CancelTokenSource | null = null;
 
   mounted(): void {
     this.map = new Map({
@@ -183,13 +165,10 @@ export default class AAHotspotWrapper extends Vue {
       this.displayFeatureInfo(e.pixel);
     });
 
-    this.resetPeriod('start', false);
-    this.resetPeriod('end', false);
-    this.loadData().then(noop);
-
     this.$once('hook:beforeDestroy', this.stopInterval);
 
-    EventBus.$on('reload-carriers', () => this.loadData().then(noop));
+    this.loadData();
+    EventBus.$on('reload-carriers', this.loadData);
   }
 
   public startInterval(): void {
@@ -215,15 +194,20 @@ export default class AAHotspotWrapper extends Vue {
   }
 
   public displayFeatureInfo(pixel: Pixel): void {
-    const { info } = this.$refs;
-    info.style.left = pixel[0] + 'px';
-    info.style.top = pixel[1] + 'px';
+    const { info, cId, val, ts } = this.$refs;
 
     const feature = this.map.forEachFeatureAtPixel(pixel, function (feature) {
       return feature;
     });
+
     if (feature) {
-      info.innerHTML = feature.get('tooltip');
+      info.style.left = pixel[0] + 'px';
+      info.style.top = pixel[1] + 'px';
+
+      cId.innerText = 'LT#' + feature.get('cId');
+      val.innerText = feature.get('val') + '%';
+      ts.innerText = feature.get('ts') + ' Uhr';
+
       info.classList.remove('hidden');
     } else info.classList.add('hidden');
   }
@@ -244,10 +228,9 @@ export default class AAHotspotWrapper extends Vue {
       if (feature) {
         const [timestamp, coords, data] = record;
 
-        const id = getCounter(_id);
-        const perc = toPercent(data);
+        const cId = getCounter(_id);
+        const val = toPercent(data);
         const ts = date(timestamp);
-        const tooltip = `#${id} | ${perc}% am ${ts} Uhr`;
 
         const geometry = new Point(
           fromLonLat([Math.min(...coords), Math.max(...coords)])
@@ -255,58 +238,51 @@ export default class AAHotspotWrapper extends Vue {
         const opacity = data;
 
         feature.setGeometry(geometry);
-        feature.setProperties({ tooltip, opacity });
+        feature.setProperties({ cId, val, ts, opacity });
       }
     });
   }
 
-  public updatePeriod(period: 'start' | 'end', to: string): void {
-    const timestamp = new Date(to).getTime();
-    this.period[period] = timestamp;
-    this.loadData().then(noop);
-  }
-
-  public resetPeriod(period: 'start' | 'end', reload = true): void {
-    this.period[period] = null;
-    if (reload) this.loadData().then(noop);
-  }
-
-  public async loadData(): Promise<void> {
-    // if (Math.pow(1, 1) === 1) return;
-
-    this.loading = true;
+  public loadData(): void {
     this.stopInterval();
-    const options: Record<string, string[] | number> = strippedFilter();
 
-    const { start, end } = this.period;
-    if (start) options.start = new Date(start).getTime();
-    if (end) options.end = new Date(end).getTime();
+    if (this.cancelSource) {
+      this.cancelSource.cancel();
+    }
+    this.cancelSource = axios.CancelToken.source();
+    const cancelToken = this.cancelSource.token;
 
-    const { data } = await backend.post<Hotspot[]>(this.endpoint, options);
-    const timestamps = data.map((x) => x.dataTuples.map((d) => d[0])).flat();
+    this.timestamp = (this.$store.state.time.start || new Date()).getTime();
 
-    this.start = Math.min(...timestamps);
-    this.end = Math.max(...timestamps);
-    this.timestamp = this.start;
-    this.carriers = data;
+    backend
+      .post<Hotspot[]>(this.endpoint, strippedFilter(), { cancelToken })
+      .then(({ data }) => {
+        const timestamps = data
+          .map((x) => x.dataTuples.map((d) => d[0]))
+          .flat();
 
-    this.heat.getSource()?.addFeatures(
-      data.map(({ _id }) => {
-        const feature = new Feature({ opacity: 0 });
-        feature.setId(_id);
-        return feature;
-      })
-    );
+        this.start = Math.min(...timestamps);
+        this.end = Math.max(...timestamps);
+        this.timestamp = this.start;
+        this.carriers = data;
 
-    const center = data.filter(({ dataTuples }) =>
-      dataTuples.filter(([timestamp]) => timestamp === this.start)
-    )[0].dataTuples[0][1];
+        this.heat.getSource()?.addFeatures(
+          data.map(({ _id }) => {
+            const feature = new Feature({ opacity: 0 });
+            feature.setId(_id);
+            return feature;
+          })
+        );
 
-    this.map.getView().setCenter(fromLonLat(center.reverse()));
+        const center = data.filter(({ dataTuples }) =>
+          dataTuples.filter(([timestamp]) => timestamp === this.start)
+        )[0].dataTuples[0][1];
 
-    this.loading = false;
+        this.map.getView().setCenter(fromLonLat(center.reverse()));
 
-    // this.startInterval();
+        this.cancelSource = null;
+        // this.startInterval();
+      });
   }
 
   public exportAsPNG(): void {
@@ -392,26 +368,13 @@ export default class AAHotspotWrapper extends Vue {
 
 <style lang="scss" scoped>
 .aa-hotspot-wrapper {
-  .period-picker {
-    display: grid;
-    @media only screen and(min-width: 550px) {
-      grid-template-columns: 1fr 1fr;
-    }
-    grid-gap: 10px;
-
-    margin-top: -10px;
-    border-bottom: 1px solid rgba(var(--vm-border), 1);
-    padding-bottom: 10px;
-  }
-
   .playback {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-gap: 10px;
 
-    background: rgba(var(--vm-background), 1);
-    padding: 10px 5px;
-    border-bottom: 1px solid rgba(var(--vm-border), 1);
+    margin-top: -10px;
+    padding: 0 5px 10px;
 
     .bar {
       height: 1.5em;
@@ -428,8 +391,7 @@ export default class AAHotspotWrapper extends Vue {
   }
 
   .map-container {
-    border-bottom-right-radius: $border-radius;
-    border-bottom-left-radius: $border-radius;
+    border-radius: $border-radius;
     z-index: 0;
     overflow: hidden;
     background: rgba(var(--vm-container), 1);
@@ -449,7 +411,14 @@ export default class AAHotspotWrapper extends Vue {
 
       white-space: nowrap;
       font-weight: 500;
-      padding: 2.5px 10px;
+      padding: 10px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+
       border-radius: $border-radius;
       background: rgba(#000, 0.5);
       backdrop-filter: saturate(180%) blur(20px);
@@ -461,41 +430,30 @@ export default class AAHotspotWrapper extends Vue {
         transform: translate(-50%, 0%) scale(0);
         opacity: 0;
       }
+
+      // carrierId
+      div:nth-child(1) {
+        text-transform: uppercase;
+        margin-bottom: 0.5em;
+        font-size: 0.875em;
+        font-weight: bold;
+      }
+
+      // value
+      div:nth-child(2) {
+        font-size: 1.75em;
+        font-weight: bold;
+      }
+
+      // timestamp
+      div:nth-child(3) {
+        margin-top: 0.5em;
+        font-size: 0.75em;
+        font-weight: 600;
+      }
     }
 
     position: relative;
-    .loading {
-      z-index: 20;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      text-align: center;
-      padding: 20px;
-      background: rgba(#000, 0.4);
-      backdrop-filter: saturate(180%) blur(20px);
-      color: #fff;
-      p {
-        font-weight: 500;
-        font-size: 1.1em;
-      }
-    }
-  }
-
-  .loading-enter,
-  .loading-leave-to {
-    opacity: 0;
-    backdrop-filter: saturate(0%) blur(0px);
-    background: rgba(#000, 0);
-  }
-  .loading-enter-active,
-  .loading-leave-active {
-    transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
   }
 }
 </style>

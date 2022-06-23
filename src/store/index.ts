@@ -22,6 +22,10 @@ const states = {
     customers: [] as string[],
     orders: [] as string[],
   },
+  time: {
+    start: new Date(Date.now() - 604800000),
+    end: new Date(),
+  },
   selection: {} as Record<string, boolean>,
 };
 

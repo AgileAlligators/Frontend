@@ -1,5 +1,7 @@
 <template>
   <AAView class="view-charts">
+    <AATimeRange slot="static" />
+
     <AALoadChart />
     <AAIdleChart />
     <AAVibrationChart />
@@ -13,9 +15,16 @@ import AAView from '@/components/AAView.vue';
 import AALoadChart from '@/components/charts/AALoadChart.vue';
 import AAIdleChart from '@/components/charts/AAIdleChart.vue';
 import AAVibrationChart from '@/components/charts/AAVibrationChart.vue';
+import AATimeRange from '@/components/AATimerange.vue';
 
 @Component({
-  components: { AAView, AALoadChart, AAIdleChart, AAVibrationChart },
+  components: {
+    AAView,
+    AATimeRange,
+    AALoadChart,
+    AAIdleChart,
+    AAVibrationChart,
+  },
 })
 export default class Charts extends Vue {}
 </script>
