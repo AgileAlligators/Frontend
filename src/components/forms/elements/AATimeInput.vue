@@ -8,6 +8,8 @@
     color="green"
     show-weeknumbers
     v-model="innerValue"
+    :minute-increment="5"
+    :max-date="new Date()"
   >
     <template v-slot="{ inputValue, inputEvents }">
       <input :value="inputValue" v-on="inputEvents" />

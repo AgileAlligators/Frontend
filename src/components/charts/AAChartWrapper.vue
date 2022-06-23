@@ -1,7 +1,7 @@
 <template>
   <AASection class="aa-chart-wrapper" :title="title">
     <vm-flow slot="title">
-      <vm-spinner size="5px" v-if="cancelSource" />
+      <vm-spinner size="5px" v-if="controller" />
       <AAIconButton
         @click="$store.commit('dialog_filter', true)"
         v-title="'Ladungsträger filtern'"
@@ -23,7 +23,6 @@
 import { backend } from '@/utils/backend';
 import { EventBus } from '@/utils/constants';
 import { getCounter, strippedFilter } from '@/utils/functions';
-import axios, { CancelTokenSource } from 'axios';
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import AAIconButton from '../AAIconButton.vue';
 import AASection from '../AASection.vue';
@@ -39,7 +38,7 @@ export default class AAChartWrapper extends Vue {
   @Prop({ required: true }) chartType!: string;
 
   public series: Chart[] = [];
-  public cancelSource: CancelTokenSource | null = null;
+  public controller: AbortController | null = null;
 
   mounted(): void {
     this.loadData();
@@ -47,14 +46,12 @@ export default class AAChartWrapper extends Vue {
   }
 
   public loadData(): void {
-    if (this.cancelSource) {
-      this.cancelSource.cancel();
-    }
-    this.cancelSource = axios.CancelToken.source();
-    const cancelToken = this.cancelSource.token;
+    if (this.controller) this.controller.abort();
+    this.controller = new AbortController();
+    const signal = this.controller.signal;
 
     backend
-      .post(this.endpoint, strippedFilter(), { cancelToken })
+      .post(this.endpoint, strippedFilter(), { signal })
       .then(({ data }) => {
         const mapped = (data as Chart[]).map(({ name, data }) => {
           return {
@@ -62,7 +59,7 @@ export default class AAChartWrapper extends Vue {
             data,
           };
         });
-        this.cancelSource = null;
+        this.controller = null;
         this.$set(this, 'series', mapped);
       });
   }

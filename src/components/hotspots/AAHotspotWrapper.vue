@@ -5,7 +5,7 @@
     :subtitle="$date(timestamp) + ' Uhr'"
   >
     <vm-flow slot="title">
-      <vm-spinner size="5px" v-if="cancelSource" />
+      <vm-spinner size="5px" v-if="controller" />
       <AAIconButton
         @click="$store.commit('dialog_filter', true)"
         v-title="'Ladungsträger filtern'"
@@ -99,7 +99,6 @@ import Point from 'ol/geom/Point';
 import Feature from 'ol/Feature';
 import MapBrowserEvent from 'ol/MapBrowserEvent';
 import { Pixel } from 'ol/pixel';
-import axios, { CancelTokenSource } from 'axios';
 
 type DataTuple = [number, [number, number], number];
 interface Hotspot {
@@ -145,7 +144,7 @@ export default class AAHotspotWrapper extends Vue {
   };
 
   public carriers: Hotspot[] = [];
-  public cancelSource: CancelTokenSource | null = null;
+  public controller: AbortController | null = null;
 
   mounted(): void {
     this.map = new Map({
@@ -246,16 +245,14 @@ export default class AAHotspotWrapper extends Vue {
   public loadData(): void {
     this.stopInterval();
 
-    if (this.cancelSource) {
-      this.cancelSource.cancel();
-    }
-    this.cancelSource = axios.CancelToken.source();
-    const cancelToken = this.cancelSource.token;
+    if (this.controller) this.controller.abort();
+    this.controller = new AbortController();
+    const signal = this.controller.signal;
 
     this.timestamp = (this.$store.state.time.start || new Date()).getTime();
 
     backend
-      .post<Hotspot[]>(this.endpoint, strippedFilter(), { cancelToken })
+      .post<Hotspot[]>(this.endpoint, strippedFilter(), { signal })
       .then(({ data }) => {
         const timestamps = data
           .map((x) => x.dataTuples.map((d) => d[0]))
@@ -280,7 +277,7 @@ export default class AAHotspotWrapper extends Vue {
 
         this.map.getView().setCenter(fromLonLat(center.reverse()));
 
-        this.cancelSource = null;
+        this.controller = null;
         // this.startInterval();
       });
   }
