@@ -1,6 +1,7 @@
 import store from '@/store';
 import Vue from 'vue';
 import { VMNotificationObject } from 'vuement';
+import { EventBus } from './constants';
 
 export function copyToClipboard(text: string): void {
   const dummy = document.createElement('textarea');
@@ -85,6 +86,7 @@ export function date(timestamp: number): string {
 export function time(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const mins = Math.floor(minutes % 60);
+
   let x: (string | number)[] = [];
   if (mins > 0 || hours === 0)
     x = [mins, mins === 1 ? 'Minute' : 'Minuten', ...x];
@@ -120,4 +122,8 @@ export function scale(
   outMax: number
 ): number {
   return ((input - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+}
+
+export function carrierDetails(carrierId: string, timestamp: number): void {
+  EventBus.$emit('carrier-details', { carrierId, timestamp });
 }

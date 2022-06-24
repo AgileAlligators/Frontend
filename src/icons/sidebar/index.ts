@@ -9,6 +9,8 @@ import aiHome from './aiHome.vue';
 import aiHomeFilled from './aiHomeFilled.vue';
 import aiHotspots from './aiHotspots.vue';
 import aiHotspotsFilled from './aiHotspotsFilled.vue';
+import aiPeaks from './aiPeaks.vue';
+import aiPeaksFilled from './aiPeaksFilled.vue';
 
 export const AlligatorIconsSidebar: PluginFunction<unknown> =
   function registerIcons(Vue: typeof _Vue): void {
@@ -22,4 +24,6 @@ export const AlligatorIconsSidebar: PluginFunction<unknown> =
     Vue.component('ai-hotspots-filled', aiHotspotsFilled);
     Vue.component('ai-guide', aiGuide);
     Vue.component('ai-guide-filled', aiGuideFilled);
+    Vue.component('ai-peaks', aiPeaks);
+    Vue.component('ai-peaks-filled', aiPeaksFilled);
   };

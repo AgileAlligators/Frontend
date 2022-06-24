@@ -3,6 +3,7 @@
     class="aa-idle-hotspot"
     title="Standzeitentwicklung"
     endpoint="location/idle/hotspot"
+    type="idle"
   />
 </template>
 

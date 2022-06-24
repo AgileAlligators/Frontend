@@ -3,6 +3,7 @@
     class="aa-location-hotspot"
     title="Bewegungsmuster"
     endpoint="location/hotspot"
+    type="location"
   />
 </template>
 

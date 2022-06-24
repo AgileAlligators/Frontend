@@ -17,6 +17,7 @@ const states = {
   savedRoute: null as null | RawLocation,
 
   dialog_filter: false,
+  dialog_carrier: false,
   filter: {
     types: [] as string[],
     customers: [] as string[],
@@ -95,6 +96,9 @@ export default new Vuex.Store({
       if (!open && state.dialog_filter !== open)
         EventBus.$emit('reload-carriers');
       state.dialog_filter = open;
+    },
+    dialog_carrier(state: typeof states, open: boolean) {
+      state.dialog_carrier = open;
     },
     filter_types(state: typeof states, types: string[] | null) {
       state.filter.types = types || [];

@@ -30,8 +30,8 @@
           </tr>
         </thead>
         <transition-group tag="tbody" name="tbody">
-          <tr v-for="c in items" :key="c.id">
-            <td>
+          <tr v-for="c in items" :key="c.id" @click="details(c.id)">
+            <td @click.stop>
               <vm-checkbox
                 v-title="'Im Diagramm anzeigen'"
                 v-model="$store.state.selection[c.id]"
@@ -61,7 +61,7 @@
 <script lang="ts">
 import { backend } from '@/utils/backend';
 import { EventBus } from '@/utils/constants';
-import { strippedFilter } from '@/utils/functions';
+import { carrierDetails, strippedFilter } from '@/utils/functions';
 import { Carrier } from '@/utils/interfaces';
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import AAIconButton from './AAIconButton.vue';
@@ -96,6 +96,10 @@ export default class AACarrierTable extends Vue {
     if (length === 0) return page;
     const total = `Zeige ${length}/${this.total} Ladungsträger`;
     return total + ' • ' + page;
+  }
+
+  public details(carrierId: string): void {
+    carrierDetails(carrierId, Date.now());
   }
 
   public nextPage(): void {
@@ -241,6 +245,7 @@ export default class AACarrierTable extends Vue {
       }
 
       tbody tr {
+        cursor: pointer;
         border-top: 1px solid rgba(var(--vm-border), 1);
         &:nth-child(ODD) {
           background: rgba(var(--vm-container), 0.5);

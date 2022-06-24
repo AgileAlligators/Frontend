@@ -36,6 +36,7 @@
         <vm-navbar-item routeName="home" title="Übersicht" />
         <vm-navbar-item routeName="charts" title="Diagramme" />
         <vm-navbar-item routeName="hotspots" title="Hotspots" />
+        <vm-navbar-item routeName="peaks" title="Spitzen" />
         <vm-navbar-item routeName="guide" title="Handbuch" />
       </template>
     </template>

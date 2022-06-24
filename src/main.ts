@@ -63,3 +63,90 @@ new Vue({
   store,
   render: (h) => h(App),
 }).$mount('#app');
+
+Vue.prototype.$vibrationChart = {
+  chart: {
+    toolbar: { show: true },
+    parentHeightOffset: 0,
+    background: 'transparent',
+    fontFamily: 'inherit',
+    stacked: false,
+    zoom: {
+      type: 'x',
+      enabled: false,
+      autoScaleYaxis: true,
+    },
+  },
+  yaxis: {
+    min: 0,
+    max: 1,
+    tickAmount: 10,
+    labels: {
+      formatter: (value: number) => Math.round(value * 100) / 100,
+    },
+  },
+  xaxis: {
+    type: 'datetime',
+  },
+  tooltip: {
+    x: { format: 'dd.MM.yyyy \\u\\m HH:mm \\U\\h\\r' },
+  },
+  stroke: { lineCap: 'round', width: 3, curve: 'straight' },
+  theme: { mode: store.getters.dark ? 'dark' : 'light' },
+};
+
+Vue.prototype.$idleChart = {
+  chart: {
+    toolbar: { show: true },
+    parentHeightOffset: 0,
+    background: 'transparent',
+    fontFamily: 'inherit',
+    stacked: false,
+    zoom: {
+      type: 'x',
+      enabled: false,
+      autoScaleYaxis: true,
+    },
+  },
+  yaxis: {
+    labels: { formatter: (value: number) => time(value) },
+  },
+  xaxis: {
+    type: 'datetime',
+  },
+  tooltip: {
+    x: { format: 'dd.MM.yyyy \\u\\m HH:mm \\U\\h\\r' },
+  },
+  stroke: { lineCap: 'round', width: 3, curve: 'straight' },
+  theme: { mode: store.getters.dark ? 'dark' : 'light' },
+  dataLabels: { enabled: false },
+};
+
+Vue.prototype.$loadChart = {
+  chart: {
+    toolbar: { show: true },
+    parentHeightOffset: 0,
+    background: 'transparent',
+    fontFamily: 'inherit',
+    stacked: false,
+    zoom: {
+      type: 'x',
+      enabled: false,
+      autoScaleYaxis: true,
+    },
+  },
+  yaxis: {
+    min: 0,
+    max: 100,
+    tickAmount: 5,
+    labels: { formatter: (value: number) => value + '%' },
+  },
+  xaxis: {
+    type: 'datetime',
+  },
+  tooltip: {
+    x: { format: 'dd.MM.yyyy \\u\\m HH:mm \\U\\h\\r' },
+  },
+  stroke: { lineCap: 'round', width: 3, curve: 'straight' },
+  theme: { mode: store.getters.dark ? 'dark' : 'light' },
+};

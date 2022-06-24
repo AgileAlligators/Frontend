@@ -56,6 +56,14 @@ const router = new VueRouter({
       },
     },
     {
+      path: '/peaks',
+      name: 'peaks',
+      component: () => import('@/views/Peaks.vue'),
+      meta: {
+        PAGE_TITLE: 'Peaks',
+      },
+    },
+    {
       path: '/guide',
       name: 'guide',
       component: () => import('@/views/Guide.vue'),

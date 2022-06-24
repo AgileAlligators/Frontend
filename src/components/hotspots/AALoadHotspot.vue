@@ -3,6 +3,7 @@
     class="aa-load-hotspot"
     title="Beladungsentwicklung"
     endpoint="load/hotspot"
+    type="load"
   />
 </template>
 

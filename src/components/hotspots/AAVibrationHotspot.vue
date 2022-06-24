@@ -3,6 +3,7 @@
     class="aa-vibration-hotspot"
     title="Vibrationen"
     endpoint="vibration/hotspot"
+    type="vibration"
   />
 </template>
 

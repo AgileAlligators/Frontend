@@ -1,65 +1,27 @@
 <template>
   <AASection
-    class="aa-hotspot-wrapper"
+    class="aa-peak-wrapper"
     :title="title"
-    :subtitle="$date(timestamp) + ' Uhr'"
+    :subtitle="
+      $date($store.state.time.start) +
+      ' - ' +
+      $date($store.state.time.end) +
+      ' Uhr'
+    "
   >
     <vm-flow slot="title">
       <vm-spinner size="5px" v-if="controller" />
+      <AAIconButton
+        @click="exportAsPNG"
+        v-title="'Bild herunterladen'"
+        icon="download"
+      />
       <AAIconButton
         @click="$store.commit('dialog_filter', true)"
         v-title="'Ladungsträger filtern'"
         icon="filter"
       />
     </vm-flow>
-
-    <div class="playback">
-      <vm-flow :key="interval || 'a'">
-        <AAIconButton
-          v-if="!interval"
-          @click="startInterval()"
-          v-title="'Animation starten'"
-          icon="play"
-        />
-        <AAIconButton
-          v-else
-          @click="stopInterval()"
-          v-title="'Animation pausieren'"
-          icon="pause"
-        />
-        <vm-action title="Geschwindigkeit anpassen">
-          <AAIconButton
-            v-title="'Geschwindigkeit anpassen'"
-            icon="speed"
-            slot="trigger"
-          />
-          <vm-action-item
-            v-for="(interval, title) in intervals"
-            :key="interval"
-            :title="title"
-            :color="updateInterval === interval && 'primary'"
-            @click="setUpdateInterval(interval)"
-          />
-        </vm-action>
-        <AAIconButton
-          @click="exportAsPNG"
-          v-title="'Bild herunterladen'"
-          icon="download"
-        />
-        <div class="bar" />
-      </vm-flow>
-
-      <vm-slider
-        :min="start"
-        :max="end"
-        :step="step"
-        :value="timestamp"
-        @input="
-          timestamp = +$event;
-          updatePoints();
-        "
-      />
-    </div>
 
     <div class="map-container">
       <div class="map-wrapper">
@@ -102,16 +64,20 @@ import Feature from 'ol/Feature';
 import MapBrowserEvent from 'ol/MapBrowserEvent';
 import { Pixel } from 'ol/pixel';
 
-type DataTuple = [number, [number, number], number];
-interface Hotspot {
-  _id: string;
-  dataTuples: DataTuple[];
+interface Peak {
+  id: string;
+  carrierId: string;
+  coordinates: [number, number];
+  timestamp: number;
+  vibration?: number;
+  idle?: number;
 }
 
 @Component({ components: { AASection, AAIconButton, AAFormInput } })
-export default class AAHotspotWrapper extends Vue {
+export default class AAPeakWrapper extends Vue {
   @Prop({ required: true }) title!: string;
   @Prop({ required: true }) endpoint!: string;
+  @Prop() filter!: Record<string, number>;
   @Prop() type!: string;
 
   $refs!: {
@@ -128,25 +94,10 @@ export default class AAHotspotWrapper extends Vue {
     source: new VectorSource({ features: [] }),
     weight: (feature) => scale(feature.get('opacity'), 0, 1, 0.1, 1),
   });
+
   public map = new Map({});
 
-  public start = 0;
-  public end = Date.now();
-  public interval: number | null = null;
-  public timestamp = 0;
-  public step = 300000; // 5 Minuten
-  public progress = 0;
-  public updateInterval = 500;
-
-  public intervals = {
-    'Sehr langsam': 1300,
-    Langsam: 1000,
-    Normal: 700,
-    Schnell: 400,
-    'Sehr schnell': 100,
-  };
-
-  public carriers: Hotspot[] = [];
+  public peaks: Peak[] = [];
   public controller: AbortController | null = null;
 
   mounted(): void {
@@ -167,32 +118,8 @@ export default class AAHotspotWrapper extends Vue {
       this.displayFeatureInfo(e.pixel, true);
     });
 
-    this.$once('hook:beforeDestroy', this.stopInterval);
-
     this.loadData();
     EventBus.$on('reload-carriers', this.loadData);
-  }
-
-  public startInterval(): void {
-    this.stopInterval();
-    this.interval = setInterval(() => {
-      const { end, start, timestamp } = this;
-      if (timestamp > end) this.timestamp = start;
-      else this.timestamp += this.step;
-
-      this.updatePoints();
-    }, this.updateInterval);
-  }
-
-  public stopInterval(): void {
-    if (this.interval) clearInterval(this.interval);
-    this.interval = null;
-  }
-
-  public setUpdateInterval(to: number): void {
-    this.updateInterval = to;
-    this.stopInterval();
-    this.startInterval();
   }
 
   public displayFeatureInfo(pixel: Pixel, isClick = false): void {
@@ -208,90 +135,77 @@ export default class AAHotspotWrapper extends Vue {
 
       const v = feature.get('val');
 
-      if (this.type === 'idle') val.innerHTML = time(v);
-      else if (this.type === 'load') val.innerHTML = v + '%';
-      else val.innerHTML = v;
-
       cId.innerText = 'LT#' + feature.get('cId');
+      val.innerText = this.type === 'time' ? time(v) : v;
       ts.innerText = feature.get('ts') + ' Uhr';
 
       if (isClick)
-        carrierDetails(feature.getId() + '', feature.get('timestamp'));
+        carrierDetails(feature.get('carrierId'), feature.get('timestamp'));
 
       info.classList.remove('hidden');
     } else info.classList.add('hidden');
   }
 
-  private getClosest(dataTuples: DataTuple[]): DataTuple {
-    return dataTuples.reduce((prev, curr) =>
-      Math.abs(curr[0] - this.timestamp) < Math.abs(prev[0] - this.timestamp)
-        ? curr
-        : prev
+  public updatePoints(): void {
+    this.peaks.forEach(
+      ({ id, carrierId, coordinates, timestamp, vibration, idle }) => {
+        const feature = this.heat.getSource()?.getFeatureById(id);
+
+        if (feature) {
+          const v = vibration || idle || 0;
+          let opacity = v;
+          if (this.type === 'time') opacity = v / 60;
+
+          const cId = getCounter(carrierId);
+          const val = this.type === 'time' ? v : toPercent(v);
+          const ts = date(timestamp);
+
+          const geometry = new Point(
+            fromLonLat([Math.min(...coordinates), Math.max(...coordinates)])
+          );
+
+          feature.setGeometry(geometry);
+          feature.setProperties({
+            cId,
+            val,
+            ts,
+            opacity,
+            carrierId,
+            timestamp,
+          });
+        }
+      }
     );
   }
 
-  public updatePoints(): void {
-    this.carriers.forEach(({ _id, dataTuples }) => {
-      const record = this.getClosest(dataTuples);
-      const feature = this.heat.getSource()?.getFeatureById(_id);
-
-      if (feature) {
-        const [timestamp, coords, data] = record;
-
-        const cId = getCounter(_id);
-        let opacity = data;
-        if (this.type === 'idle') opacity = data / 60;
-
-        const val = this.type === 'idle' ? data : toPercent(data);
-        const ts = date(timestamp);
-
-        const geometry = new Point(
-          fromLonLat([Math.min(...coords), Math.max(...coords)])
-        );
-
-        feature.setGeometry(geometry);
-        feature.setProperties({ cId, val, ts, opacity, timestamp });
-      }
-    });
-  }
-
   public loadData(): void {
-    this.stopInterval();
-
     if (this.controller) this.controller.abort();
     this.controller = new AbortController();
     const signal = this.controller.signal;
 
-    this.timestamp = (this.$store.state.time.start || new Date()).getTime();
-
     backend
-      .post<Hotspot[]>(this.endpoint, strippedFilter(), { signal })
+      .post<{ results: Peak[] }>(
+        this.endpoint,
+        { ...strippedFilter(), ...this.filter, limit: 300 },
+        { signal }
+      )
       .then(({ data }) => {
-        const timestamps = data
-          .map((x) => x.dataTuples.map((d) => d[0]))
-          .flat();
-
-        this.start = Math.min(...timestamps);
-        this.end = Math.max(...timestamps);
-        this.timestamp = this.start;
-        this.carriers = data;
+        this.peaks = data.results;
 
         this.heat.getSource()?.addFeatures(
-          data.map(({ _id }) => {
+          this.peaks.map(({ id }) => {
             const feature = new Feature({ opacity: 0 });
-            feature.setId(_id);
+            feature.setId(id);
             return feature;
           })
         );
 
-        const center = data.filter(({ dataTuples }) =>
-          dataTuples.filter(([timestamp]) => timestamp === this.start)
-        )[0].dataTuples[0][1];
+        this.updatePoints();
 
+        const center = this.peaks[0].coordinates;
         this.map.getView().setCenter(fromLonLat(center.reverse()));
 
         this.controller = null;
-        // this.startInterval();
       });
   }
 
@@ -362,7 +276,7 @@ export default class AAHotspotWrapper extends Vue {
 </script>
 
 <style lang="scss">
-.aa-hotspot-wrapper #map .ol-control {
+.aa-peak-wrapper #map .ol-control {
   background: rgba(127, 127, 127, 0.25);
   backdrop-filter: saturate(180%) blur(20px);
   padding: 5px;
@@ -377,29 +291,7 @@ export default class AAHotspotWrapper extends Vue {
 </style>
 
 <style lang="scss" scoped>
-.aa-hotspot-wrapper {
-  .playback {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 10px;
-
-    margin-top: -10px;
-    padding: 0 5px 10px;
-
-    .bar {
-      height: 1.5em;
-      width: 2px;
-      border-radius: 2px;
-      background: rgba(var(--vm-border), 1);
-      margin-left: 7.5px;
-    }
-
-    .vm-slider {
-      margin-top: auto;
-      margin-bottom: auto;
-    }
-  }
-
+.aa-peak-wrapper {
   .map-container {
     border-radius: $border-radius;
     z-index: 0;

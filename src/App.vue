@@ -10,6 +10,7 @@
 
     <template v-if="$store.getters.user">
       <AADialogFilter />
+      <AADialogCarrier />
     </template>
   </div>
 </template>
@@ -23,11 +24,13 @@ import AAUpdateAvailable from './components/dialogs/AAUpdateAvailable.vue';
 import AASidebar from './components/sidebar/AASidebar.vue';
 import AAHeader from './components/AAHeader.vue';
 import AADialogFilter from './components/dialogs/AADialogFilter.vue';
+import AADialogCarrier from './components/dialogs/AADialogCarrier.vue';
 
 @Component({
   components: {
     AAUpdateAvailable,
     AADialogFilter,
+    AADialogCarrier,
 
     AARouter,
     AASidebar,
