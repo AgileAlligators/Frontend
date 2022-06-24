@@ -3,6 +3,7 @@
     <AATimeRange slot="static" />
 
     <AALoadChart />
+    <AALoadOverTimeChart />
     <AAIdleChart />
     <AAVibrationChart />
   </AAView>
@@ -16,12 +17,14 @@ import AALoadChart from '@/components/charts/AALoadChart.vue';
 import AAIdleChart from '@/components/charts/AAIdleChart.vue';
 import AAVibrationChart from '@/components/charts/AAVibrationChart.vue';
 import AATimeRange from '@/components/AATimerange.vue';
+import AALoadOverTimeChart from '@/components/charts/AALoadOverTimeChart.vue';
 
 @Component({
   components: {
     AAView,
     AATimeRange,
     AALoadChart,
+    AALoadOverTimeChart,
     AAIdleChart,
     AAVibrationChart,
   },

@@ -127,3 +127,23 @@ export function scale(
 export function carrierDetails(carrierId: string, timestamp: number): void {
   EventBus.$emit('carrier-details', { carrierId, timestamp });
 }
+
+export function mapLoadOverTime(d: { name: string; data: number[] }[]): {
+  categories: string[];
+  series: { name: string; data: number[] }[];
+} {
+  const categories = d.map(({ name }) =>
+    name.length === 24 ? 'LT#' + getCounter(name) : name
+  );
+
+  const series = [
+    { name: 'Vollzeit', data: [] as number[] },
+    { name: 'Leerzeit', data: [] as number[] },
+    { name: 'Restliche Zeit', data: [] as number[] },
+  ];
+  series.forEach((_, index) => {
+    series[index].data = d.map(({ data }) => data[index]);
+  });
+
+  return { categories, series };
+}

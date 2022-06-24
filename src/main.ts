@@ -150,3 +150,35 @@ Vue.prototype.$loadChart = {
   stroke: { lineCap: 'round', width: 3, curve: 'straight' },
   theme: { mode: store.getters.dark ? 'dark' : 'light' },
 };
+
+Vue.prototype.$loadOverTimeChart = {
+  chart: {
+    toolbar: { show: true },
+    parentHeightOffset: 0,
+    background: 'transparent',
+    fontFamily: 'inherit',
+    stacked: true,
+    stackType: '100%',
+    zoom: {
+      type: 'x',
+      enabled: false,
+      autoScaleYaxis: true,
+    },
+  },
+  // yaxis: {
+  //   min: 0,
+  //   max: 100,
+  //   tickAmount: 5,
+  //   labels: { formatter: (value: number) => time(value) },
+  // },
+  // xaxis: {
+  //   type: 'datetime',
+  // },
+  tooltip: {
+    // x: { format: 'dd.MM.yyyy \\u\\m HH:mm \\U\\h\\r' },
+    y: { formatter: (value: number) => time(value) },
+  },
+  plotOptions: { bar: { horizontal: true } },
+  stroke: { lineCap: 'round', width: 3, curve: 'straight' },
+  theme: { mode: store.getters.dark ? 'dark' : 'light' },
+};

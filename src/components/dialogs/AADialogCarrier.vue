@@ -25,8 +25,6 @@
       </table>
     </AASection>
 
-    <p>{{ carrierId }}</p>
-
     <AASection title="Standzeiten" v-if="vibrationSeries.length > 0">
       <div class="chart-wrapper">
         <apexchart
@@ -34,6 +32,23 @@
           height="200"
           :options="$idleChart"
           :series="idleSeries"
+        />
+      </div>
+    </AASection>
+
+    <AASection
+      title="Vollzeit / Leerzeit"
+      v-if="loadOverTimeCategories.length > 0"
+    >
+      <div class="chart-wrapper">
+        <apexchart
+          type="bar"
+          height="120"
+          :options="{
+            ...$loadOverTimeChart,
+            xaxis: { categories: loadOverTimeCategories },
+          }"
+          :series="loadOverTimeSeries"
         />
       </div>
     </AASection>
@@ -65,7 +80,7 @@
 <script lang="ts">
 import { backend } from '@/utils/backend';
 import { EventBus } from '@/utils/constants';
-import { getCounter, strippedFilter } from '@/utils/functions';
+import { getCounter, mapLoadOverTime, strippedFilter } from '@/utils/functions';
 import { Component, Mixins } from 'vue-property-decorator';
 import AASection from '../AASection.vue';
 import { AADialogMixin } from './AADialog.mixin';
@@ -90,6 +105,8 @@ export default class AADialogCarrier extends Mixins(AADialogMixin) {
   public vibrationSeries: Chart[] = [];
   public loadSeries: Chart[] = [];
   public idleSeries: Chart[] = [];
+  public loadOverTimeSeries = [];
+  public loadOverTimeCategories = [];
 
   mounted(): void {
     EventBus.$on('carrier-details', ({ carrierId, timestamp }: Payload) => {
@@ -138,9 +155,24 @@ export default class AADialogCarrier extends Mixins(AADialogMixin) {
     backend
       .post('load/diagram', opts)
       .then(({ data }) => this.$set(this, 'loadSeries', this.mapData(data)));
+
+    backend
+      .post('load/diagram/time', opts)
+      .then(({ data }) => mapLoadOverTime(data))
+      .then(({ categories, series }) => {
+        this.$set(this, 'loadOverTimeCategories', categories);
+        this.$set(this, 'loadOverTimeSeries', series);
+      });
   }
 }
 </script>
+
+<style lang="scss">
+.aa-dialog-carrier .vm-dialog {
+  width: calc(90vw - env(safe-area-inset-left) - env(safe-area-inset-right));
+  max-width: $max-width;
+}
+</style>
 
 <style lang="scss" scoped>
 .aa-dialog-carrier {
@@ -160,13 +192,6 @@ export default class AADialogCarrier extends Mixins(AADialogMixin) {
 
   .chart-wrapper {
     margin-top: -30px;
-    width: calc(80vw - env(safe-area-inset-left) - env(safe-area-inset-right));
-    @media #{$isDesktop} {
-      width: calc(
-        80vw - env(safe-area-inset-left) - env(safe-area-inset-right) - #{$sidebar-width}
-      );
-    }
-    max-width: $max-width;
 
     @include aa-scrollbar();
     overflow: hidden;

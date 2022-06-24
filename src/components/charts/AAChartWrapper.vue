@@ -8,11 +8,11 @@
         icon="filter"
       />
     </vm-flow>
-    <div class="chart-wrapper">
+    <div class="chart-wrapper" :key="categories.length">
       <apexchart
         :type="chartType"
-        height="500"
-        :options="chartOptions"
+        :height="categories.length === 0 ? 500 : categories.length * 120"
+        :options="options"
         :series="series"
       />
     </div>
@@ -22,7 +22,7 @@
 <script lang="ts">
 import { backend } from '@/utils/backend';
 import { EventBus } from '@/utils/constants';
-import { getCounter, strippedFilter } from '@/utils/functions';
+import { getCounter, mapLoadOverTime, strippedFilter } from '@/utils/functions';
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import AAIconButton from '../AAIconButton.vue';
 import AASection from '../AASection.vue';
@@ -39,6 +39,15 @@ export default class AAChartWrapper extends Vue {
 
   public series: Chart[] = [];
   public controller: AbortController | null = null;
+  public categories: string[] = [];
+
+  get options(): unknown {
+    if (this.endpoint !== 'load/diagram/time') return this.chartOptions;
+    else
+      return Object.assign(this.chartOptions, {
+        xaxis: { categories: this.categories },
+      });
+  }
 
   mounted(): void {
     this.loadData();
@@ -53,14 +62,20 @@ export default class AAChartWrapper extends Vue {
     backend
       .post(this.endpoint, strippedFilter(), { signal })
       .then(({ data }) => {
-        const mapped = (data as Chart[]).map(({ name, data }) => {
-          return {
-            name: name.length === 24 ? 'LT#' + getCounter(name) : name,
-            data,
-          };
-        });
         this.controller = null;
-        this.$set(this, 'series', mapped);
+        if (this.endpoint === 'load/diagram/time') {
+          const { categories, series } = mapLoadOverTime(data);
+          this.$set(this, 'categories', categories);
+          this.$set(this, 'series', series);
+        } else {
+          const mapped = (data as Chart[]).map(({ name, data }) => {
+            return {
+              name: name.length === 24 ? 'LT#' + getCounter(name) : name,
+              data,
+            };
+          });
+          this.$set(this, 'series', mapped);
+        }
       });
   }
 }
