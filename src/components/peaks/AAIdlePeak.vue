@@ -3,7 +3,7 @@
     class="aa-idle-peak"
     title="Standzeitspitzen"
     endpoint="location/idle/search"
-    :filter="{ minIdle: 10 }"
+    :filter="{ minIdle: 120 }"
     type="time"
   />
 </template>
