@@ -202,8 +202,10 @@ export default class AAPeakWrapper extends Vue {
 
         this.updatePoints();
 
-        const center = this.peaks[0].coordinates;
-        this.map.getView().setCenter(fromLonLat(center.reverse()));
+        if (this.peaks.length > 0) {
+          const center = this.peaks[0].coordinates;
+          this.map.getView().setCenter(fromLonLat(center.reverse()));
+        }
 
         this.controller = null;
       });

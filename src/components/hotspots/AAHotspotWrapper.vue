@@ -271,9 +271,6 @@ export default class AAHotspotWrapper extends Vue {
           .map((x) => x.dataTuples.map((d) => d[0]))
           .flat();
 
-        this.start = Math.min(...timestamps);
-        this.end = Math.max(...timestamps);
-        this.timestamp = this.start;
         this.carriers = data;
 
         this.heat.getSource()?.addFeatures(
@@ -284,11 +281,17 @@ export default class AAHotspotWrapper extends Vue {
           })
         );
 
-        const center = data.filter(({ dataTuples }) =>
-          dataTuples.filter(([timestamp]) => timestamp === this.start)
-        )[0].dataTuples[0][1];
+        if (this.carriers.length > 0) {
+          this.start = Math.min(...timestamps);
+          this.end = Math.max(...timestamps);
+          this.timestamp = this.start;
 
-        this.map.getView().setCenter(fromLonLat(center.reverse()));
+          const center = data.filter(({ dataTuples }) =>
+            dataTuples.filter(([timestamp]) => timestamp === this.start)
+          )[0].dataTuples[0][1];
+
+          this.map.getView().setCenter(fromLonLat(center.reverse()));
+        }
 
         this.controller = null;
         // this.startInterval();
