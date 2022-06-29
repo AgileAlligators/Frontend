@@ -55,6 +55,21 @@
         Wählt man hier einen Zeitraum aus und klickt auf das Startsymbol, so
         werden die Bewegungen der Ladungsträger visuell abgespielt.
       </p>
+      <p>
+        Zusätzlich können die Hotspots der Ladungsträger angeklickt werden,
+        woraufhin eine detaillierte Ansicht über den Ladungsträger angezeigt
+        wird. Diese Ansicht sieht wie folgt aus.
+      </p>
+      <vm-image src="assets/guide/CarrierPopup.png" />
+    </AASection>
+    <AASection title="Ladungsträger untersuchen">
+      <p>
+        Neben der regulären Auswahl von Ladungsträgern, können diese auch nach
+        speziellen Eigenschaften gefiltert werden. Unter der Ansicht "Spitzen"
+        werden Ladungsträger nach Eigenschaften wie z.B. Erschütterungen > 0.5
+        dargestellt.
+      </p>
+      <vm-image src="assets/guide/VibrationPeaks.png" />
     </AASection>
   </AAView>
 </template>
